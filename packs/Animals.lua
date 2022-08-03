@@ -28,12 +28,10 @@ function M:new(id, title, left, bottom, direction, switch_direction, layout)
     -- chicken and goat fence is smaller
     local grid = (id == "chicken" or id == "goat") and 3 or 4
     --
-    --local rows = _self.layout == "up_right" and grid * 3 or grid
-    --local cols = rows > grid and grid or grid * 3
-    local rows = grid * 3
-    local cols = grid
-    print(rows, cols)
-    _self.Move = layout == "up_right" and Move:new(rows, cols, GV.FIELD_SIZE, 30) or Move:new(cols, rows, GV.FIELD_SIZE, 30)
+    local rows = grid
+    local cols = grid * 3
+
+    _self.Move = Move:new(rows * 2, cols * 2, GV.FIELD_SIZE / 2, 30)
     setmetatable(_self, M)
 
     return _self
@@ -43,12 +41,21 @@ end
 function M:start()
     local building = self:getBuilding()
     if building then
-        local target, status = self:getStatus(building)
-        if target then
-            self.Move:start({ target, building.obj }, self.direction, self.switch_direction)
+        for i = 1, 2 do
+            local target, status = self:getStatus(building)
+            if not target then
+                return false
+            end
+
+            -- building spot adjust to cover the fences
+            self.Move:start({ target, Location(building.x - 10, building.y - 10) }, self.direction, self.switch_direction)
+            -- animals are fed
+            if status == 1 then
+                return true
+            end
         end
     end
-
+    return false
 end
 
 -------------------------------------------------------------------------------
