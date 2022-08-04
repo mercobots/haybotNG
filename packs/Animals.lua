@@ -61,7 +61,7 @@ end
 -------------------------------------------------------------------------------
 function M:getBuilding()
     Console:show(table.concat({ "Open", self.title }))
-    local anchor = botl.getAnchor(0, { 30, -5 }, 2, GV.SCREEN.left)
+    local anchor = botl.getHolder(0, { 30, -5 }, 2, GV.SCREEN.left)
 
     if not anchor then
         scriptExit("Anchor not found")

@@ -1,3 +1,11 @@
+-------------------------------------------------------------------------------
+---@class Building
+--- **Singleton**
+-------------------------------------------------------------------------------
+local M = {}
+M.__index = M
+
+-- Dependencies
 local Image = require('ImageHelper')
 local Color = require('ColorHelper')
 local luall = require('LuaLib')
@@ -8,12 +16,14 @@ local Queue = require("Queue")
 local OTimer = require('OTimer')
 
 -------------------------------------------------------------------------------
-local M = {}
-M.__index = M
-
--------------------------------------------------------------------------------
-local anchor_offset = { 270, 80 }
-
+---[Public]
+---
+--- init class
+---@param id string @building id
+---@param title string @building name
+---@param left number @building left location
+---@param bottom number @building bottom location
+---@return self @new class metatable
 -------------------------------------------------------------------------------
 function M:new(id, title, left, bottom)
     local _self = {}
@@ -67,7 +77,7 @@ end
 -------------------------------------------------------------------------------
 function M:getBuilding()
     Console:show(table.concat({ "Open", self.title }))
-    local anchor = botl.getAnchor(0, anchor_offset)
+    local anchor = botl.getHolder(0,  { 270, 80 })
 
     if not anchor then
         scriptExit("Anchor not found")
@@ -83,20 +93,6 @@ end
 
 -------------------------------------------------------------------------------
 function M:collect()
---[[    if Color:exists(GV.OBJ.collect_product, 0) then
-        -- Barn FUll
-        if Image:R(GV.REG.safe_area):exists("barn_full.png", 0) then
-            Console:show("Barn Is Full")
-            botl.btn_close("click")
-            return false
-        end
-
-        if not Image:R(GV.REG.safe_area):exists("building/anchor.png", 0) then
-            return false
-
-        end
-    end]]
-
     if Color:exists(GV.OBJ.collect_product, 0) and
             not Image:R(GV.REG.safe_area):exists("building/anchor.png", 0) then
         return false

@@ -58,7 +58,7 @@ function M:open()
         Console:show('RSS open')
         return true
     else
-        local target = botl.getAnchor(0, anchor_offset)
+        local target = botl.getHolder(0, anchor_offset)
 
         if target then
             click(target.obj)
@@ -268,7 +268,7 @@ end
 
 -------------------------------------------------------------------------------
 function M:hasSell(action)
-    local target = botl.getAnchor(0, anchor_offset)
+    local target = botl.getHolder(0, anchor_offset)
     if target then
         local R = Region(target.x - 50, target.y - 50, 100, 100)
         --debug_r(R)

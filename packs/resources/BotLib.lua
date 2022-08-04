@@ -76,7 +76,7 @@ end
 --end
 
 -------------------------------------------------------------------------------
-function M.getAnchor(t, to, list, r)
+function M.getHolder(t, to, list, r)
     t = t or 1
     to = to or { 0, 0 }
     list = list or 1

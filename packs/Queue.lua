@@ -1,10 +1,6 @@
-local Image = require('ImageHelper')
-local Color = require('ColorHelper')
 local luall = require('LuaLib')
-local botl = require('BotLib')
 local GV = require('GlobalVars')
-local Console = require('Console')
-local OTimer = require('OTimer')
+
 -------------------------------------------------------------------------------
 local M = {
     data = {}
