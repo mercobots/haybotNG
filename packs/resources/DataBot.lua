@@ -6,7 +6,7 @@ local GV = require('GlobalVars')
 --
 function M:start()
     GV.REG = {
-        align = Region(439, 492, 142, 308),
+        align = Region(350, 492, 180, 308),
         safe_area = Region(93, 91, 1066, 564),
         btn_close = Region(760, 0, 520, 358),
         rss_btn_close = Region(874, 94, 175, 121),

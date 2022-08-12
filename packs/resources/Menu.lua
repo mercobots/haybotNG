@@ -19,6 +19,9 @@ do
 end
 --
 function M:start()
+    --
+    self:updateGVValues()
+    --
     while true do
         local form = Form:new(table.concat({ GV.SETTINGS.BRAND, " - ", GV.SETTINGS.BOT_VERSION, " - ", GV.SETTINGS.BOT_NAME, }))
         form:addForm {
@@ -49,6 +52,14 @@ function M:start()
         end
     end
 end
+-------------------------------------------------------------------------------
+function M:updateGVValues()
+    GV.CFG ={
+        general = Memory:load("config_general"),
+        layout = Memory:load("config_layout"),
+        products = Memory:load("config_products"),
+    }
+end
 
 -------------------------------------------------------------------------------
 function M:generalSettings()
@@ -56,29 +67,34 @@ function M:generalSettings()
     local form = Form:new("General Settings")
     form:addForm {
         ele = {
-            { type = 'text', id = '#', label = '\n# System #' },
-            { type = 'checkbox', id = '#', label = '\tDebug', value = false },
+            { type = 'text', label = '\n# System #' },
+            { type = 'checkbox', id = 'DEBUG_MODE', label = '\tDebug', value = false },
             --
-            { type = 'text', id = '#', label = '\n# Farm #' },
-            { type = 'input_number', id = '#', label = '\tRSS Slots', value = 10 },
+            { type = 'text', label = '\n# Farm #' },
+            { type = 'input_number', id = 'RSS_SLOTS', label = '\tRSS Slots', value = 10 },
             { type = 'selectbox_index', id = 'FARM_FIELD_SPEED', label = '\tPlant/Harvest\tspeed', value = 25, options = move_speed, new_row = false },
             { type = 'selectbox_index', id = 'FARM_FIELD_DIRECTION', label = '\tDirection', value = 1, options = move_direction, new_row = false },
         }
     }
+    local data = Memory:load("config_general")
+    form:loadData(data, true)
     form:show()
+    Memory:save("config_general", form:getMinifiedData())
+    self:updateGVValues()
 end
 -------------------------------------------------------------------------------
 function M:productsSettings()
     --
+    Memory:load("config_products")
     local form = Form:new("Products Settings")
     form:addForm {
         ele = {
-            { type = 'text', id = '#', label = '\n# Crops #' },
-            { type = 'checkbox', id = '#', label = '\tWheat', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            { type = 'text', label = '\n# Crops #' },
+            { type = 'checkbox', id = 'PRO_WHEAT_ACTIVE', label = '\tWheat', value = false, new_row = false },
+            { type = 'selectbox_index', id = 'PRO_WHEAT_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
+            { type = 'input_number', id = 'PRO_WHEAT_KEEP', label = '\tKeep\t', value = 10 },
             --
-            { type = 'checkbox', id = '#', label = '\tCorn', value = false, new_row = false },
+           --[[ { type = 'checkbox', id = '#', label = '\tCorn', value = false, new_row = false },
             { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
             { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
             --
@@ -138,11 +154,15 @@ function M:productsSettings()
             --
             { type = 'checkbox', id = '#', label = '\tSyrup', value = false, new_row = false },
             { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },]]
 
         }
     }
+    local data = Memory:load("config_products")
+    form:loadData(data, true)
     form:show()
+    Memory:save("config_products", form:getMinifiedData())
+    self:updateGVValues()
 end
 
 -------------------------------------------------------------------------------
@@ -151,12 +171,12 @@ function M:layoutSettings()
     form:addForm {
         ele = {
             { type = 'text', value = '\n# FIELDS #', },
-            { type = 'input_number', id = '#', label = '\tStarting point\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 1 },
-            { type = 'input_number', id = '#', label = '\tTotal fields [Left]', value = 10, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
+            { type = 'input_number', id = 'FIELD_START_L', label = '\tStarting point\t[left]', value = 1, new_row = false },
+            { type = 'input_number', id = 'FIELD_START_B', label = '\t[Bottom]', value = 1 },
+            { type = 'input_number', id = 'FIELD_TOTAL_L', label = '\tTotal fields [Left]', value = 10, new_row = false },
+            { type = 'input_number', id = 'FIELD_TOTAL_B', label = '\t[Bottom]', value = 10 },
             --
-            { type = 'text', value = '\n# ANIMALS #', },
+          --[[  { type = 'text', value = '\n# ANIMALS #', },
             { type = 'input_number', id = '#', label = '\tCow\t[left]', value = 1, new_row = false },
             { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
             { type = 'input_number', id = '#', label = '\tPig\t[left]', value = 1, new_row = false },
@@ -184,10 +204,14 @@ function M:layoutSettings()
             { type = 'input_number', id = '#', label = '\tFeed Mill (2)\t[left]', value = 1, new_row = false },
             { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
             { type = 'input_number', id = '#', label = '\tBeehive Tree\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
+            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },]]
         }
     }
+    local data = Memory:load("config_layout")
+    form:loadData(data, true)
     form:show()
+    Memory:save("config_layout", form:getMinifiedData())
+    self:updateGVValues()
 end
 
 --function M:start()

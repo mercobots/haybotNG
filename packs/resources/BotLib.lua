@@ -10,7 +10,7 @@ local Pattern = Pattern
 local math_abs = math.abs
 -- ----------------------------------
 local holder_list = {
-    Image:generateBulkList('holder/1/', 2),
+    Image:generateBulkList('holder/1/', 1),
     Image:generateBulkList('holder/2/', 1),
 }
 
@@ -131,36 +131,6 @@ function M.getAnchorClickLocation(anchor, line_1, line_2, corner)
     return false
 end
 
---[[
-function M.getAnchorClickLocation(anchor, start_left, start_bottom, corner)
-    start_left = start_left or 0
-    start_bottom = start_bottom or 0
-    start_left = start_left - 1
-    start_bottom = start_bottom - 1
-    corner = corner or "bottom"
-    --local x = math_abs(start_left - start_bottom) * GV.FIELD_SIZE
-    --local y = math_abs((start_left + start_bottom) - 1)
-    --y = -((y <= 1 and 0 or y) * (GV.FIELD_SIZE / 2))
-    local x = math_abs(start_left - start_bottom) * GV.FIELD_SIZE
-    local y = -(math_abs(start_left + start_bottom) * (GV.FIELD_SIZE / 2))
-
-    --  change direction to left(-) or right(+)
-    x = start_left > start_bottom and -x or x
-    local field = {
-        x = anchor.x + x,
-        y = anchor.y + y,
-        obj = Location(anchor.x + x, anchor.y + y)
-    }
-
-    local screen = Region(0, 0, GV.SETTINGS.WIDTH, GV.SETTINGS.HEIGHT)
-
-    if luall.location_in_region(field.obj)
-    then
-        return field
-    end
-    return false
-end]]
-
 -- ----------------------------------
 -- clearScreen
 -- ----------------------------------
@@ -181,6 +151,8 @@ function M.clearScreen(t)
             Console:show('Return to farm Screen')
         elseif luall.is_timeout(timer:check(), t) then
             break
+        elseif M.btn_close("click", 0) then
+
         else
             luall.btn_back()
             t = t + 1
@@ -232,13 +204,14 @@ function M.zoomOut()
     _zoom(pt1StartX, pt1StartY, pt1EndX, pt1EndY, pt2StartX, pt2StartY, pt2EndX, pt2EndY, 500, false)
 end
 
-function M.align(timeout)
+function M.align(timeout, align_spot)
     timeout = timeout or 60
+    align_spot = align_spot or 1
     local timer = Timer()
     --
     Console:show('Align')
     --
-    while not M.getHotSpot() do
+    while not M.getHolder(0, false, align_spot) do
         local s_l_1 = Location(171, 144)
         local s_l_2 = Location(9999, 9999)
         local SS = Region(1050, 504, 151, 215)

@@ -23,9 +23,16 @@ local slide_check = false
 ---@return void
 -------------------------------------------------------------------------------
 function M:set()
-    self.crop = GV.PRODUCTS[1]
+   -- self.crop = GV.PRODUCTS[1]
+    self.crop = Queue.data.field[1]
     self.crop_growing = OTimer:new(self.crop.produce_time)
-    self.MoveFields = Move:new(8, 10, GV.FIELD_SIZE, 25)
+    --self.MoveFields = Move:new(8, 10, GV.FIELD_SIZE, 25)
+    self.MoveFields = Move:new(
+            GV.CFG.layout.FIELD_TOTAL_B,
+            GV.CFG.layout.FIELD_TOTAL_L,
+            GV.FIELD_SIZE,
+            GV.CFG.general.FARM_FIELD_SPEED
+    )
 end
 
 -------------------------------------------------------------------------------
@@ -63,7 +70,7 @@ end
 function M:getField()
     Console:show("Search Field")
     --
-    local holder = botl.getHolder(0, { 270, 80 })
+    local holder = botl.getHolder(0, { 355, 93 })
     if not holder then
         Console:show("Holder not found")
         return false
@@ -84,7 +91,6 @@ function M:getField()
     Console:show("Field status undefined")
     return false
 end
-
 
 -------------------------------------------------------------------------------
 --- Check if crops are growing, if is empty or crops are ready to harvest
