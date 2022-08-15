@@ -69,6 +69,14 @@ function M:start()
 
     }
 
+    -- add variable value
+    for i = 1, #GV.PRODUCTS do
+        GV.PRODUCTS[i].timer = false
+        GV.PRODUCTS[i].stock = 0
+        GV.PRODUCTS[i].keep = 0
+        GV.PRODUCTS[i].space = 0
+        GV.PRODUCTS[i].start_point = 0
+    end
 end
 
 return M

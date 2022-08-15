@@ -124,8 +124,7 @@ function M.getAnchorClickLocation(anchor, line_1, line_2, corner)
 
     local screen = Region(0, 0, GV.SETTINGS.WIDTH, GV.SETTINGS.HEIGHT)
 
-    if luall.location_in_region(field.obj)
-    then
+    if luall.location_in_region(field.obj) then
         return field
     end
     return false

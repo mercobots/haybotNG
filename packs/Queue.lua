@@ -77,4 +77,16 @@ function M:getNextProduct(cat)
     return self.data[cat][1]
 end
 
+-------------------------------------------------------------------------------
+function M:getData(cat)
+
+    if cat and self.data[cat] then
+        return self.data[cat]
+    end
+
+    return self.data
+end
+
+
+
 return M

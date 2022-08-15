@@ -23,13 +23,13 @@ local slide_check = false
 ---@return void
 -------------------------------------------------------------------------------
 function M:set()
-   -- self.crop = GV.PRODUCTS[1]
-    self.crop = Queue.data.field[1]
-    self.crop_growing = OTimer:new(self.crop.produce_time)
+    self.crops = luall.table_by_group(GV.PRODUCTS, "type", "crop")-- only crops table from products
+    self.crop = Queue:getNextProduct("field")
+    self.max_lanes = GV.CFG.layout.FIELD_TOTAL_L
     --self.MoveFields = Move:new(8, 10, GV.FIELD_SIZE, 25)
-    self.MoveFields = Move:new(
-            GV.CFG.layout.FIELD_TOTAL_B,
+    self.Move = Move:new(
             GV.CFG.layout.FIELD_TOTAL_L,
+            GV.CFG.layout.FIELD_TOTAL_B,
             GV.FIELD_SIZE,
             GV.CFG.general.FARM_FIELD_SPEED
     )
@@ -43,9 +43,8 @@ end
 function M:start()
 
     -- crop timeout
-    if self.crop_growing:isRunning() then
-        Console:show(self.crop.title .. ' - ' .. self.crop_growing:timeLeft())
-        return true
+    if self:cropIsGrowing() then
+        return false
     end
 
     -- get field location and field status
@@ -53,13 +52,69 @@ function M:start()
 
     -- move across the field
     if field then
-        self.MoveFields:start({ tool.obj, field.obj }, 'up_left', 'up_right')
+        self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
 
         -- check silo capacity
         if self:siloFull() then
             return true
         end
     end
+end
+
+-------------------------------------------------------------------------------
+function M:getFreeLanes(holder)
+    local enqueued_crops = Queue:getData("field")
+    local lane_occupied = 0
+
+    -- get occupied lanes
+    for i = 1, #enqueued_crops do
+        lane_occupied = lane_occupied + Queue.data[i].space
+    end
+
+    local lane_size = self.max_lanes - lane_occupied
+
+    if lane_size > 0 then
+
+    end
+
+    -- update available rows for next crop
+    botl.getAnchorClickLocation(holder, 1, self.crop)
+end
+
+-------------------------------------------------------------------------------
+--- check crop timeout
+---
+---@return boolean
+-------------------------------------------------------------------------------
+function M:cropIsGrowing()
+    local crop = false
+    local last_crop_check = 9999
+    -- select crop whit less timeout
+    for i = 1, #self.crops do
+        if self.crops[i].timer then
+            -- one crop is ready to harvest
+            if self.crops[i].timer:isTimeout() then
+                Console:show(self.crops[i].title .. ' - Ready ')
+                -- crop ready to harvest, remove from queue
+                Queue:removeProduct(self.crops[i].id)
+                return true
+            end
+
+            -- get next crop ready (Not required)
+            local crop_timer = self.crops[i].timer:getData()
+            if crop_timer.time_left < last_crop_check then
+                crop = self.crops[i]
+            end
+
+        end
+    end
+
+    --(Not required)
+    if crop then
+        Console:show(crop.title .. ' - ' .. crop.timer:timeLeft())
+    end
+
+    return crop
 end
 
 -------------------------------------------------------------------------------
@@ -70,7 +125,8 @@ end
 function M:getField()
     Console:show("Search Field")
     --
-    local holder = botl.getHolder(0, { 355, 93 })
+    --local holder = botl.getHolder(0, { 360, 98 })
+    local holder = botl.getHolder(0, { 365, 103 })
     if not holder then
         Console:show("Holder not found")
         return false
@@ -121,7 +177,7 @@ function M:getFieldStatus(field)
     --
     if Image:R(r):exists(Pattern('btn/switch.png'):targetOffset(self.crop.offset_x, self.crop.offset_y), 1) then
         Console:show("Field is empty")
-        -- save data target to avoid to mix whit switchSlides images
+        -- save data target to avoid mix whit switchSlides images
         local btn_switch = Image:getData('target')
 
         -- set slide page for crop
@@ -130,7 +186,8 @@ function M:getFieldStatus(field)
             botl.switchSlides(self.crop.slide)
         end
 
-        self.crop_growing:reset()
+        self.crop.timer = OTimer:new(self.crop.produce_time)
+        self.crop.timer:start()
         return btn_switch, 1
     end
 
@@ -151,7 +208,7 @@ end
 function M:siloFull()
     if not botl.isHomeScreen(0) and Color:exists(GV.OBJ.farming_silo_full, 3) then
         Console:show('Silo is full')
-        luall.btn_back()
+        botl.btn_close("click", 0)
 
         -- replant crop to not get 0 while selling
         local field, tool, tool_type = self:getField()
@@ -159,9 +216,9 @@ function M:siloFull()
         if field then
             if tool_type == 1 then
                 -- plant
-                self.MoveFields:start({ tool.obj, field.obj }, 'up_left', 'up_right')
+                self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
             else
-                self.crop_growing:stop()
+                self.crop.timer:stop()
             end
             return true
         end
