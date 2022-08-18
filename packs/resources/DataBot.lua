@@ -3,6 +3,8 @@
 local M = {}
 --
 local GV = require('GlobalVars')
+local luall = require('LuaLib')
+
 --
 function M:start()
     GV.REG = {
@@ -74,8 +76,12 @@ function M:start()
         GV.PRODUCTS[i].timer = false
         GV.PRODUCTS[i].stock = 0
         GV.PRODUCTS[i].keep = 0
-        GV.PRODUCTS[i].space = 0
-        GV.PRODUCTS[i].start_point = 0
+    end
+
+    -- only for crops
+    local crops = luall.table_by_group(GV.PRODUCTS,"type", "crop")
+    for i = 1, #crops do
+        crops[i].lanes = {}
     end
 end
 

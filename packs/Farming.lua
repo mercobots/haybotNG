@@ -24,8 +24,9 @@ local slide_check = false
 -------------------------------------------------------------------------------
 function M:set()
     self.crops = luall.table_by_group(GV.PRODUCTS, "type", "crop")-- only crops table from products
-    self.crop = Queue:getNextProduct("field")
+    self.crop = false
     self.max_lanes = GV.CFG.layout.FIELD_TOTAL_L
+    self.current_slide = 1
     --self.MoveFields = Move:new(8, 10, GV.FIELD_SIZE, 25)
     self.Move = Move:new(
             GV.CFG.layout.FIELD_TOTAL_L,
@@ -41,80 +42,144 @@ end
 ---@return void
 -------------------------------------------------------------------------------
 function M:start()
+    self.crop = Queue:getNextProduct("field")
 
-    -- crop timeout
-    if self:cropIsGrowing() then
+    if not self.crop then
+        Console:show("No crops to plant")
         return false
     end
 
-    -- get field location and field status
-    local field, tool, tool_type = self:getField()
+    -- check for free lanes
+    local free_lanes, start_lane, end_lane = self:getRequiredLanes()
+    if #free_lanes < 1 then
+        Console:show("No lanes available")
+        return false
+    end
 
-    -- move across the field
-    if field then
-        self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
-
-        -- check silo capacity
-        if self:siloFull() then
-            return true
+    for round = 1, 2 do
+        -- get field location and field status
+        local field, tool, tool_type = self:getField(start_lane)
+        if not field then
+            return false
         end
+
+        -- Plant
+        if tool_type == 1 then
+            -- register occupied lanes
+            self.crop.lanes = free_lanes
+
+            -- start timer crop
+            self.crop.timer = OTimer:new(self.crop.produce_time)
+            self.crop.timer:start()
+
+            -- change move range
+            self.Move.rows = (end_lane - start_lane) + 1
+
+            -- move across the field
+            self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
+            Queue:removeProduct(self.crop.id)
+            break
+        end
+
+        -- harvest
+        if tool_type == 2 then
+            -- change move range
+            self.Move.rows = (self.max_lanes - start_lane) + 1
+
+            -- move across the field
+            self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
+
+            -- reset harvest crops by timer/timeout
+            self:resetCrops()
+
+            -- check silo capacity
+            if self:siloFull() then
+                break
+            end
+        end
+
     end
+
 end
-
 -------------------------------------------------------------------------------
-function M:getFreeLanes(holder)
-    local enqueued_crops = Queue:getData("field")
-    local lane_occupied = 0
-
-    -- get occupied lanes
-    for i = 1, #enqueued_crops do
-        lane_occupied = lane_occupied + Queue.data[i].space
-    end
-
-    local lane_size = self.max_lanes - lane_occupied
-
-    if lane_size > 0 then
-
-    end
-
-    -- update available rows for next crop
-    botl.getAnchorClickLocation(holder, 1, self.crop)
-end
-
--------------------------------------------------------------------------------
---- check crop timeout
----
----@return boolean
--------------------------------------------------------------------------------
-function M:cropIsGrowing()
-    local crop = false
-    local last_crop_check = 9999
-    -- select crop whit less timeout
+function M:resetCrops()
     for i = 1, #self.crops do
-        if self.crops[i].timer then
-            -- one crop is ready to harvest
-            if self.crops[i].timer:isTimeout() then
-                Console:show(self.crops[i].title .. ' - Ready ')
-                -- crop ready to harvest, remove from queue
-                Queue:removeProduct(self.crops[i].id)
-                return true
-            end
+        --
+        --if enqueued_crops[i].timer and enqueued_crops[i].timer:isTimeout() then
+        --
+        --end
+        -- if there is registered lanes , that means timer is assigned! so is timer is running
+        if self.crops[i].timer and self.crops[i].timer:isTimeout() then
+            self.crops[i].timer = false
+            self.crops[i].lanes = 0
+        end
+    end
+end
 
-            -- get next crop ready (Not required)
-            local crop_timer = self.crops[i].timer:getData()
-            if crop_timer.time_left < last_crop_check then
-                crop = self.crops[i]
-            end
+-------------------------------------------------------------------------------
+function M:getLanesStatus()
+    Console:show("Get lane status")
+    local lanes = {}
+    local occupied_lanes = {}
 
+    -- since enqueued crops are deleted only after harvest, they remain as data
+    -- so for each enqueued crop get the lanes they are occupying , if any
+    for i = 1, #self.crops do
+
+        -- if there is registered lanes , that means timer is assigned!
+        if #self.crops[i].lanes > 0 and self.crops[i].timer:isRunning() then
+            occupied_lanes = luall.table_merge(occupied_lanes, self.crops[i].lanes)
         end
     end
 
-    --(Not required)
-    if crop then
-        Console:show(crop.title .. ' - ' .. crop.timer:timeLeft())
+    -- creates range list of on/off lanes
+    for i = 1, self.max_lanes do
+        lanes[i] = luall.in_table(occupied_lanes, i) < 1
     end
+    return lanes
+end
 
-    return crop
+
+-------------------------------------------------------------------------------
+function M:getRequiredLanes()
+    local lanes = self:getLanesStatus()
+    local start_lane = 0
+    local end_lane = 0
+    local free_lanes = {}
+    local required_lanes = math.ceil(#lanes / #Queue:getData("field"))
+
+    --
+    Console:show("get start point")
+    --
+    for i = 1, #lanes do
+
+        -- if lane is free
+        if lanes[i] then
+            free_lanes[#free_lanes + 1] = i
+            -- 1º record?
+            if start_lane < 1 then
+                start_lane = i
+            end
+        end
+        -- required_lanes reached
+        if #free_lanes >= required_lanes then
+            end_lane = i
+            break
+        end
+
+        -- last check
+        if i == #lanes then
+            -- in case only 1 lane is available
+            if #free_lanes == 1 then
+                end_lane = start_lane
+                break
+            end
+            end_lane = i
+        end
+
+    end
+    --self.Move.row = end_lane - start_lane
+    return free_lanes, start_lane, end_lane
 end
 
 -------------------------------------------------------------------------------
@@ -122,30 +187,31 @@ end
 ---
 ---@return table,table,number @returns field __{x,y,obj}__, tool __{x,y,obj}__ and tool type (1 = crop, 2 = scythe), returns false if no field found
 -------------------------------------------------------------------------------
-function M:getField()
+function M:getField(start_lane)
     Console:show("Search Field")
     --
-    --local holder = botl.getHolder(0, { 360, 98 })
-    local holder = botl.getHolder(0, { 365, 103 })
+    local holder = botl.getHolder(0, { 355, 98 })
+    --local holder = botl.getHolder(0, { 365, 103 })
     if not holder then
         Console:show("Holder not found")
         return false
     end
+
     -- get offset starting location
-    local field = botl.getAnchorClickLocation(holder, 1, 1)
+    local field = botl.getAnchorClickLocation(holder, 1, start_lane)
     if not field then
         Console:show("Field not found")
         return false
     end
 
+    -- tool type -1  = error, 0 = growing 1 = crop , 2 = scythe
     local tool, tool_type = self:getFieldStatus(field)
-
     if tool then
         return field, tool, tool_type
     end
 
     Console:show("Field status undefined")
-    return false
+    return false, tool, tool_type
 end
 
 -------------------------------------------------------------------------------
@@ -181,13 +247,11 @@ function M:getFieldStatus(field)
         local btn_switch = Image:getData('target')
 
         -- set slide page for crop
-        if not slide_check then
-            slide_check = true
+        if self.current_slide ~= self.crop.slide then
             botl.switchSlides(self.crop.slide)
+            self.current_slide = self.crop.slide
         end
 
-        self.crop.timer = OTimer:new(self.crop.produce_time)
-        self.crop.timer:start()
         return btn_switch, 1
     end
 
