@@ -14,9 +14,6 @@ local OTimer = require('OTimer')
 local Move = require('Move')
 local Queue = require("Queue")
 
--- Private
-local slide_check = false
-
 -------------------------------------------------------------------------------
 --- Assign defaults values to class variables
 ---
@@ -50,8 +47,8 @@ function M:start()
     end
 
     -- check for free lanes
-    local free_lanes, start_lane, end_lane = self:getRequiredLanes()
-    if #free_lanes < 1 then
+    local allowed_lanes, start_lane, end_lane = self:getAllowedLanes()
+    if not allowed_lanes then
         Console:show("No lanes available")
         return false
     end
@@ -66,7 +63,7 @@ function M:start()
         -- Plant
         if tool_type == 1 then
             -- register occupied lanes
-            self.crop.lanes = free_lanes
+            self.crop.lanes = allowed_lanes
 
             -- start timer crop
             self.crop.timer = OTimer:new(self.crop.produce_time)
@@ -74,6 +71,7 @@ function M:start()
 
             -- change move range
             self.Move.rows = (end_lane - start_lane) + 1
+            print(self.Move.rows, "Plant rows")
 
             -- move across the field
             self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
@@ -85,6 +83,7 @@ function M:start()
         if tool_type == 2 then
             -- change move range
             self.Move.rows = (self.max_lanes - start_lane) + 1
+            print(self.Move.rows, "Harcest rows")
 
             -- move across the field
             self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
@@ -101,14 +100,16 @@ function M:start()
     end
 
 end
+
+-------------------------------------------------------------------------------
+--- Check if crops are ready to harvest and if yes, then remove they lanes.
+---
+---@return void
 -------------------------------------------------------------------------------
 function M:resetCrops()
     for i = 1, #self.crops do
-        --
-        --if enqueued_crops[i].timer and enqueued_crops[i].timer:isTimeout() then
-        --
-        --end
-        -- if there is registered lanes , that means timer is assigned! so is timer is running
+        -- if there are registered lanes , that means timer is assigned! so if timeout
+        -- theses crops are ready to harvest and the field will be free
         if self.crops[i].timer and self.crops[i].timer:isTimeout() then
             self.crops[i].timer = false
             self.crops[i].lanes = 0
@@ -117,10 +118,15 @@ function M:resetCrops()
 end
 
 -------------------------------------------------------------------------------
+--- Check if crops are ready to harvest and if yes, then remove they lanes.
+---
+---@return table,table,table @lanes free/occupied {boolean}, free lanes{numbers}, occupied_lanes{numbers}
+-------------------------------------------------------------------------------
 function M:getLanesStatus()
     Console:show("Get lane status")
     local lanes = {}
     local occupied_lanes = {}
+    local free_lanes = {}
 
     -- since enqueued crops are deleted only after harvest, they remain as data
     -- so for each enqueued crop get the lanes they are occupying , if any
@@ -134,52 +140,37 @@ function M:getLanesStatus()
 
     -- creates range list of on/off lanes
     for i = 1, self.max_lanes do
+        if luall.in_table(occupied_lanes, i) < 1 then
+            free_lanes[#free_lanes + 1] = i
+        end
         lanes[i] = luall.in_table(occupied_lanes, i) < 1
     end
-    return lanes
+    return lanes, free_lanes, occupied_lanes
 end
 
-
 -------------------------------------------------------------------------------
-function M:getRequiredLanes()
-    local lanes = self:getLanesStatus()
-    local start_lane = 0
-    local end_lane = 0
-    local free_lanes = {}
-    local required_lanes = math.ceil(#lanes / #Queue:getData("field"))
+--- Calculates allowed lanes to use for current crop, free lanes against crops in queue
+---
+---@return table,number,number @lanes allowed_lanes {numbers}, first lane, last lane
+-------------------------------------------------------------------------------
+function M:getAllowedLanes()
+    local lanes, free_lanes, occupied_lanes = self:getLanesStatus()
+    if #free_lanes < 0 then
+        return false
+    end
 
-    --
-    Console:show("get start point")
-    --
-    for i = 1, #lanes do
+    local max_lanes = math.ceil(#free_lanes / #Queue:getData("field"))
+    local allowed_lanes = {}
 
-        -- if lane is free
-        if lanes[i] then
-            free_lanes[#free_lanes + 1] = i
-            -- 1º record?
-            if start_lane < 1 then
-                start_lane = i
-            end
-        end
-        -- required_lanes reached
-        if #free_lanes >= required_lanes then
-            end_lane = i
+    -- get the last lane available from free lanes, cuz sometimes required lanes is greater than free lanes
+    for i = 1, max_lanes do
+        if not free_lanes[i] then
             break
         end
-
-        -- last check
-        if i == #lanes then
-            -- in case only 1 lane is available
-            if #free_lanes == 1 then
-                end_lane = start_lane
-                break
-            end
-            end_lane = i
-        end
-
+        allowed_lanes[#allowed_lanes + 1] = free_lanes[i]
     end
-    --self.Move.row = end_lane - start_lane
-    return free_lanes, start_lane, end_lane
+
+    return allowed_lanes, allowed_lanes[1], allowed_lanes[#allowed_lanes]
 end
 
 -------------------------------------------------------------------------------
@@ -190,8 +181,8 @@ end
 function M:getField(start_lane)
     Console:show("Search Field")
     --
-    local holder = botl.getHolder(0, { 355, 98 })
-    --local holder = botl.getHolder(0, { 365, 103 })
+    --local holder = botl.getHolder(0, { 360, 98 })
+    local holder = botl.getHolder(0, { 365, 103 })
     if not holder then
         Console:show("Holder not found")
         return false
