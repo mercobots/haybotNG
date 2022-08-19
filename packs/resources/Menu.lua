@@ -94,6 +94,14 @@ function M:productsSettings()
             { type = 'selectbox_index', id = 'PRO_WHEAT_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
             { type = 'input_number', id = 'PRO_WHEAT_KEEP', label = '\tKeep\t', value = 10 },
             --
+            { type = 'checkbox', id = 'PRO_CORN_ACTIVE', label = '\tCorn', value = false, new_row = false },
+            { type = 'selectbox_index', id = 'PRO_CORN_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
+            { type = 'input_number', id = 'PRO_CORN_KEEP', label = '\tKeep\t', value = 10 },
+            --
+            { type = 'checkbox', id = 'PRO_CARROT_ACTIVE', label = '\tCarrot', value = false, new_row = false },
+            { type = 'selectbox_index', id = 'PRO_CARROT_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
+            { type = 'input_number', id = 'PRO_CARROT_KEEP', label = '\tKeep\t', value = 10 },
+            --
            --[[ { type = 'checkbox', id = '#', label = '\tCorn', value = false, new_row = false },
             { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
             { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },

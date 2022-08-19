@@ -189,7 +189,7 @@ function M:getField(start_lane)
     end
 
     -- get offset starting location
-    local field = botl.getAnchorClickLocation(holder, 1, start_lane)
+    local field = botl.getAnchorClickLocation(holder, GV.CFG.layout.FIELD_TOTAL_L, start_lane)
     if not field then
         Console:show("Field not found")
         return false
@@ -265,7 +265,7 @@ function M:siloFull()
         Console:show('Silo is full')
         botl.btn_close("click", 0)
 
-        -- replant crop to not get 0 while selling
+        --[[-- replant crop to not get 0 while selling
         local field, tool, tool_type = self:getField()
 
         if field then
@@ -276,7 +276,8 @@ function M:siloFull()
                 self.crop.timer:stop()
             end
             return true
-        end
+        end]]
+        return true
     end
     return false
 end

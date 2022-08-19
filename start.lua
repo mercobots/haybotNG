@@ -22,6 +22,7 @@ end
 --
 Farming:set()
 
---
-Farming:start()
-Sentinel:networkReset()
+while true do
+    Farming:start()
+    wait(0.1)
+end
