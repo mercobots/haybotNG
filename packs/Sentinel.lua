@@ -13,11 +13,11 @@ local M = {}
 -------------------------------------------------------------------------------
 function M:networkReset(timeout, align_spot)
     timeout = timeout or 0
-    if not Image:R(GV.REG.safe_area):exists("network/reset.png", timeout) then
-        return false
+    if  Image:R(GV.REG.safe_area):exists("network/reset.png", timeout) then
+        botl.align(false, align_spot)
+        return true
     end
-    botl.align(false, align_spot)
-    return true
+    return false
 end
 
 -------------------------------------------------------------------------------

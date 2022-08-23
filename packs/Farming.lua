@@ -22,12 +22,12 @@ local Queue = require("Queue")
 function M:set()
     self.crops = luall.table_by_group(GV.PRODUCTS, "type", "crop")-- only crops table from products
     self.crop = false
-    self.max_lanes = GV.CFG.layout.FIELD_TOTAL_L
+    self.max_lanes = GV.CFG.layout.FIELD_TOTAL_B
     self.current_slide = 1
     --self.MoveFields = Move:new(8, 10, GV.FIELD_SIZE, 25)
     self.Move = Move:new(
-            GV.CFG.layout.FIELD_TOTAL_L,
             GV.CFG.layout.FIELD_TOTAL_B,
+            GV.CFG.layout.FIELD_TOTAL_L,
             GV.FIELD_SIZE,
             GV.CFG.general.FARM_FIELD_SPEED
     )
@@ -45,6 +45,8 @@ function M:start()
         Console:show("No crops to plant")
         return false
     end
+
+    botl.align()
 
     -- check for free lanes
     local allowed_lanes, start_lane, end_lane = self:getAllowedLanes()
@@ -83,7 +85,7 @@ function M:start()
         if tool_type == 2 then
             -- change move range
             self.Move.rows = (self.max_lanes - start_lane) + 1
-            print(self.Move.rows, "Harcest rows")
+            print(self.Move.rows, "Harvest rows")
 
             -- move across the field
             self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
@@ -180,29 +182,52 @@ end
 -------------------------------------------------------------------------------
 function M:getField(start_lane)
     Console:show("Search Field")
-    --
-    --local holder = botl.getHolder(0, { 360, 98 })
-    local holder = botl.getHolder(0, { 365, 103 })
-    if not holder then
-        Console:show("Holder not found")
-        return false
-    end
+    local offset = { 360, 107 }
+    --local offset = { 365, 103 }
 
-    -- get offset starting location
-    local field = botl.getAnchorClickLocation(holder, GV.CFG.layout.FIELD_TOTAL_L, start_lane)
-    if not field then
-        Console:show("Field not found")
-        return false
-    end
+    -- 2x cuz sometimes the screens move and the target is not correct
+    for i = 1, 2 do
 
-    -- tool type -1  = error, 0 = growing 1 = crop , 2 = scythe
-    local tool, tool_type = self:getFieldStatus(field)
-    if tool then
-        return field, tool, tool_type
-    end
+        -- search for holder "cone image"
+        local holder = botl.getHolder(0, offset)
+        if not holder then
+            Console:show("Holder not found")
+            return false
+        end
 
-    Console:show("Field status undefined")
-    return false, tool, tool_type
+        -- get offset starting location
+        local field = botl.getAnchorClickLocation(holder, GV.CFG.layout.FIELD_START_L, start_lane)
+        if not field then
+            Console:show("Field not found")
+            return false
+        end
+
+        -- click filed
+        click(field.obj)
+        wait(0.2)
+
+        -- check if screen move from last click
+        local click_confirm = botl.getHolder(0, offset)
+        if not click_confirm then
+            Console:show("Holder confirm not found")
+            return false
+        end
+
+        -- creates a region from 1º holder match 10x10 and check if new click is in the region
+        local holder_R = Region(holder.center.x - 5, holder.center.y - 5, 10, 10)
+        if luall.location_in_region(click_confirm.center.obj, holder_R) then
+
+            -- tool type -1  = error, 0 = growing 1 = crop , 2 = scythe
+            local tool, tool_type = self:getFieldStatus(field)
+            if tool then
+                return field, tool, tool_type
+            end
+            --
+            Console:show("Field status undefined")
+            return false, tool, tool_type
+        end
+    end
+    return false
 end
 
 -------------------------------------------------------------------------------
@@ -215,8 +240,6 @@ function M:getFieldStatus(field)
 
     Console:show("Click Field")
     --
-    click(field.obj)
-    wait(0.2)
 
     -- create small region to catch ongoing img
     local x, y, w, h = field.x + 70, field.y + 50, 230, 90

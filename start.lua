@@ -20,9 +20,12 @@ do
     end
 end
 --
+
 Farming:set()
 
 while true do
+    Sentinel:checkAll()
+
     Farming:start()
     wait(0.1)
 end

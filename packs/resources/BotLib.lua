@@ -82,10 +82,12 @@ function M.getHolder(t, to, list, r)
     list = list or 1
     r = r or GV.REG.align
     if Image:R(r):bulkSearch(holder_list[list], t, 0.75, to) then
-        local anchor = Image:getData('target')
+        local anchor = Image:getData()
         local screen = Region(0, 0, GV.SETTINGS.WIDTH, GV.SETTINGS.HEIGHT)
-        if luall.location_in_region(anchor.obj, screen) then
+        if luall.location_in_region(anchor.target.obj, screen) then
             return anchor
+        else
+            swipe(GV.SCREEN.loc.center, GV.SCREEN.loc.bottom_right)
         end
     end
     return false
@@ -117,9 +119,9 @@ function M.getAnchorClickLocation(anchor, line_1, line_2, corner)
     end
 
     local field = {
-        x = anchor.x + x,
-        y = anchor.y + y,
-        obj = Location(anchor.x + x, anchor.y + y)
+        x = anchor.target.x + x,
+        y = anchor.target.y + y,
+        obj = Location(anchor.target.x + x, anchor.target.y + y)
     }
 
     local screen = Region(0, 0, GV.SETTINGS.WIDTH, GV.SETTINGS.HEIGHT)
@@ -138,7 +140,7 @@ function M.clearScreen(t)
     local result = false
     t = t or 0
 
-    luall.btn_back()
+    --luall.btn_back()
     while true do
         Console:show('check Screen')
         snapshotColor()
@@ -148,10 +150,9 @@ function M.clearScreen(t)
         elseif Color:existsClick(GV.OBJ.btn_home, 0) or Color:existsClick(GV.OBJ.btn_home_dark, 0) then
             t = t + 5
             Console:show('Return to farm Screen')
+        elseif M.btn_close("click", 0) then
         elseif luall.is_timeout(timer:check(), t) then
             break
-        elseif M.btn_close("click", 0) then
-
         else
             luall.btn_back()
             t = t + 1
