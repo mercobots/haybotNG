@@ -196,7 +196,7 @@ function M:getField(start_lane)
         end
 
         -- get offset starting location
-        local field = botl.getAnchorClickLocation(holder, GV.CFG.layout.FIELD_START_L, start_lane)
+        local field = botl.getAnchorClickLocation(holder, GV.CFG.layout.FIELD_START_L, start_lane + (GV.CFG.layout.FIELD_START_B - 1))
         if not field then
             Console:show("Field not found")
             return false

@@ -102,67 +102,67 @@ function M:productsSettings()
             { type = 'selectbox_index', id = 'PRO_CARROT_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
             { type = 'input_number', id = 'PRO_CARROT_KEEP', label = '\tKeep\t', value = 10 },
             --
-           --[[ { type = 'checkbox', id = '#', label = '\tCorn', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
-            --
-            { type = 'checkbox', id = '#', label = '\tCarrot', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
-            --
-            { type = 'checkbox', id = '#', label = '\tSugarcane', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
-            --
-            { type = 'checkbox', id = '#', label = '\tSoybean', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
-            --
-            --
-            { type = 'text', id = '#', label = '\n# BAKERY #' },
-            { type = 'checkbox', id = '#', label = '\tBread', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
-            --
-            { type = 'checkbox', id = '#', label = '\tCorn Bread', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
-            --
-            { type = 'checkbox', id = '#', label = '\tCookie', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
-            --
-            --
-            { type = 'text', id = '#', label = '\n# Dairy #' },
-            { type = 'checkbox', id = '#', label = '\tCream', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
-            --
-            { type = 'checkbox', id = '#', label = '\tButter', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
-            --
-            { type = 'checkbox', id = '#', label = '\tCheese', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
-            --
-            { type = 'checkbox', id = '#', label = '\tGoat Cheese', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
-            --
-            --
-            { type = 'text', id = '#', label = '\n# Sugar Mill #' },
-            { type = 'checkbox', id = '#', label = '\tSugar', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
-            --
-            { type = 'checkbox', id = '#', label = '\tBrown Sugar', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
-            --
-            { type = 'checkbox', id = '#', label = '\tSyrup', value = false, new_row = false },
-            { type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },]]
+            --{ type = 'checkbox', id = '#', label = '\tCorn', value = false, new_row = false },
+            --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            ----
+            --{ type = 'checkbox', id = '#', label = '\tCarrot', value = false, new_row = false },
+            --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            ----
+            --{ type = 'checkbox', id = '#', label = '\tSugarcane', value = false, new_row = false },
+            --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            ----
+            --{ type = 'checkbox', id = '#', label = '\tSoybean', value = false, new_row = false },
+            --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            ----
+            ----
+            { type = 'text', label = '\n# BAKERY #' },
+            { type = 'checkbox', id = 'PRO_BREAD_ACTIVE', label = '\tBread', value = false, new_row = false },
+            { type = 'selectbox_index', id = 'PRO_BREAD_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
+            { type = 'input_number', id = 'PRO_BREAD_KEEP', label = '\tKeep\t', value = 10 },
+            ----
+            --{ type = 'checkbox', id = '#', label = '\tCorn Bread', value = false, new_row = false },
+            --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            ----
+            --{ type = 'checkbox', id = '#', label = '\tCookie', value = false, new_row = false },
+            --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            ----
+            ----
+            --{ type = 'text', id = '#', label = '\n# Dairy #' },
+            --{ type = 'checkbox', id = '#', label = '\tCream', value = false, new_row = false },
+            --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            ----
+            --{ type = 'checkbox', id = '#', label = '\tButter', value = false, new_row = false },
+            --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            ----
+            --{ type = 'checkbox', id = '#', label = '\tCheese', value = false, new_row = false },
+            --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            ----
+            --{ type = 'checkbox', id = '#', label = '\tGoat Cheese', value = false, new_row = false },
+            --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            ----
+            ----
+            --{ type = 'text', id = '#', label = '\n# Sugar Mill #' },
+            --{ type = 'checkbox', id = '#', label = '\tSugar', value = false, new_row = false },
+            --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            ----
+            --{ type = 'checkbox', id = '#', label = '\tBrown Sugar', value = false, new_row = false },
+            --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            ----
+            --{ type = 'checkbox', id = '#', label = '\tSyrup', value = false, new_row = false },
+            --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
 
         }
     }
@@ -184,35 +184,35 @@ function M:layoutSettings()
             { type = 'input_number', id = 'FIELD_TOTAL_L', label = '\tTotal fields [Left]', value = 10, new_row = false },
             { type = 'input_number', id = 'FIELD_TOTAL_B', label = '\t[Bottom]', value = 10 },
             --
-          --[[  { type = 'text', value = '\n# ANIMALS #', },
-            { type = 'input_number', id = '#', label = '\tCow\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
-            { type = 'input_number', id = '#', label = '\tPig\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
-            { type = 'input_number', id = '#', label = '\tSheep\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
-            { type = 'input_number', id = '#', label = '\tChicken\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
-            { type = 'input_number', id = '#', label = '\tGoat\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
-            --
+            --{ type = 'text', value = '\n# ANIMALS #', },
+            --{ type = 'input_number', id = '#', label = '\tCow\t[left]', value = 1, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
+            --{ type = 'input_number', id = '#', label = '\tPig\t[left]', value = 1, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
+            --{ type = 'input_number', id = '#', label = '\tSheep\t[left]', value = 1, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
+            --{ type = 'input_number', id = '#', label = '\tChicken\t[left]', value = 1, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
+            --{ type = 'input_number', id = '#', label = '\tGoat\t[left]', value = 1, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
+            ----
             { type = 'text', value = '\n# MACHINES #', },
-            { type = 'input_number', id = '#', label = '\tDairy\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
-            { type = 'input_number', id = '#', label = '\tSugar Mill\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
-            { type = 'input_number', id = '#', label = '\tHoney Extractor\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
-            { type = 'input_number', id = '#', label = '\tPopcorn Pot\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
-            { type = 'input_number', id = '#', label = '\tBakery\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
-            { type = 'input_number', id = '#', label = '\tFeed Mill (1)\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
-            { type = 'input_number', id = '#', label = '\tFeed Mill (2)\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
-            { type = 'input_number', id = '#', label = '\tBeehive Tree\t[left]', value = 1, new_row = false },
-            { type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },]]
+            --{ type = 'input_number', id = '#', label = '\tDairy\t[left]', value = 1, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
+            --{ type = 'input_number', id = '#', label = '\tSugar Mill\t[left]', value = 1, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
+            --{ type = 'input_number', id = '#', label = '\tHoney Extractor\t[left]', value = 1, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
+            --{ type = 'input_number', id = '#', label = '\tPopcorn Pot\t[left]', value = 1, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
+            { type = 'input_number', id = 'BAKERY_START_L', label = '\tBakery\t[left]', value = 15, new_row = false },
+            { type = 'input_number', id = 'BAKERY_START_B', label = '\t[Bottom]', value = 6 },
+            --{ type = 'input_number', id = '#', label = '\tFeed Mill (1)\t[left]', value = 1, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
+            --{ type = 'input_number', id = '#', label = '\tFeed Mill (2)\t[left]', value = 1, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
+            --{ type = 'input_number', id = '#', label = '\tBeehive Tree\t[left]', value = 1, new_row = false },
+            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
         }
     }
     local data = Memory:load("config_layout")

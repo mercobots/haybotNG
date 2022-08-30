@@ -1,5 +1,6 @@
 local luall = require('LuaLib')
 local GV = require('GlobalVars')
+local botl = require('BotLib')
 
 -------------------------------------------------------------------------------
 local M = {
@@ -7,17 +8,10 @@ local M = {
 }
 
 -------------------------------------------------------------------------------
-function M:getGVProductBy(field, value)
-    local i = luall.in_table(GV.PRODUCTS, value, field)
-    if i < 0 then
-        return false
-    end
-    return GV.PRODUCTS[i]
-end
-
--------------------------------------------------------------------------------
-function M:addProduct(product_id, cat)
-    local product = self:getGVProductBy('id', product_id)
+function M:addProduct(product_id, cat, require)
+    require = require or 0
+    --
+    local product = botl.getGVProductBy(product_id, 'id')
     if not product then
         return false
     end
@@ -28,8 +22,11 @@ function M:addProduct(product_id, cat)
         self.data[cat] = {}
     end
 
+    product.require = product.require + require
+
+    -- if product exists in queue update quantities
     if luall.in_table(self.data[cat], product.id, "id") > 0 then
-        scriptExit("[" .. product.id .. "] already registered")
+        return false
     end
 
     local i = #self.data[cat] + 1
@@ -39,7 +36,7 @@ end
 
 -------------------------------------------------------------------------------
 function M:removeProduct(product_id, cat)
-    local product = self:getGVProductBy('id', product_id)
+    local product = botl.getGVProductBy(product_id, 'id')
     --
     if not product then
         return false
@@ -52,12 +49,13 @@ function M:removeProduct(product_id, cat)
     end
     --
     local data_i = luall.in_table(self.data[cat], product_id, "id")
-
     if data_i < 1 then
         return false
     end
 
     table.remove(self.data[cat], data_i)
+
+    product.require = 0
     return true
 end
 
@@ -86,7 +84,5 @@ function M:getData(cat)
 
     return self.data
 end
-
-
 
 return M

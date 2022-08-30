@@ -13,40 +13,44 @@ local M = {
     current_page = 1,
 }
 
-local anchor_offset = { 127, 40 }
+local anchor_offset = { 210, 65 }
 
 -------------------------------------------------------------------------------
 
 
 function M:set()
-    --self.config = {
-    --    total_pages = math.ceil(GV.config.RSS_BOXES / 10)
-    --}
     self.current_page = 1
     self.AD = OTimer:new(60 * 5)
     --
     setContinueClickTiming(0.5, 0.1)
-    --self.queue[1] = GV.PRODUCTS[1]
     --
-    self.config = {
-        total_pages = 3
-    }
+    self.total_pages = math.ceil(GV.CFG.general.RSS_SLOTS)
+    --
     --
 end
 
 -------------------------------------------------------------------------------
 function M:start()
+
+    if Queue:totalProducts("rss") < 1 then
+        Console:show("No Products to sell")
+        return false
+    end
+
     self.current_page = 1
 
-    if self:open() then
-        for page = 1, self.config.total_pages do
-            local empty, full, sold = self:getBoxes()
-            self:collectSold(sold)
-            if not self:sellController(empty) then
-                break
-            end
-            self:movePage()
+    if not self:open() then
+        return false
+    end
+
+    for page = 1, self.total_pages do
+        local empty, full, sold = self:getBoxes()
+        self:collectSold(sold)
+        if not self:sellController(empty) then
+            break
         end
+        self:movePage()
+
     end
 
 end
@@ -58,10 +62,10 @@ function M:open()
         Console:show('RSS open')
         return true
     else
-        local target = botl.getHolder(0, anchor_offset)
+        local holder = botl.getHolder(0, anchor_offset)
 
-        if target then
-            click(target.obj)
+        if holder then
+            click(holder.target.obj)
             Console:show('Awaiting for RSS')
             if Image:R(GV.REG.rss_holder):exists('rss/holder.png') then
                 return true
@@ -129,11 +133,10 @@ function M:sellController(empty)
 
     for box = 1, #empty do
         --
-        if Queue:totalProducts("rss") < 1 then
-            return
-        end
-        --
         local product = Queue:getNextProduct("rss")
+        if not product then
+            return false
+        end
         --
         click(empty[box])
 
@@ -222,11 +225,12 @@ function M:productHasStock(product)
     product.stock = product.stock > 0 and product.stock or self:getProductQuantity()
     Console:show(product.title .. ' - ' .. product.stock)
 
-    if product.stock > product.stock_keep then
+    if product.stock > (product.keep + product.require) then
         return true
     end
 
-    Console:show('[Stock Keep] ' .. product.stock .. '/' .. product.stock_keep)
+   -- Console:show('[Stock Keep] ' .. product.stock .. '/' .. product.stock_keep)
+    Console:show(table.concat({ "[Stock Keep]", product.stock, "/", product.keep, "(+", product.require, ")" }))
     return false
 end
 
@@ -248,7 +252,7 @@ end
 
 -------------------------------------------------------------------------------
 function M:movePage(direction)
-    if self.current_page >= self.config.total_pages then
+    if self.current_page >= self.total_pages then
         self.current_page = 1
         return false
     end

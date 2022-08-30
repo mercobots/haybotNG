@@ -29,6 +29,10 @@ function M:start()
         btn_home = { center = Location(109, 743), color = { 20, 176, 20 }, diff = { 7, 7, 7 }, }, -- btn down left (house)
         btn_home_dark = { center = Location(109, 743), color = { 5, 41, 5 }, diff = { 7, 7, 7 }, }, -- btn down left (house)
         btn_register = { center = Location(110, 730), color = { 231, 149, 0 }, diff = { 7, 7, 7 }, }, -- btn down left (register)
+        btn_settings = { center = Location(31, 117), color = { 248, 225, 72 }, diff = { 7, 7, 7 }, },
+        btn_vouchers = { center = Location(1254, 143), color = { 232, 151, 0 }, diff = { 7, 7, 7 }, },
+        btn_boosters = { center = Location(1159, 766), color = { 251, 154, 0 }, diff = { 7, 7, 7 }, },
+        btn_letter = { center = Location(38, 35), color = { 255, 240, 129 }, diff = { 7, 7, 7 }, },
         --
         slides = { center = Location(0, 0), color = { 255, 255, 213 }, diff = { 10, 10, 10 }, },
         farming_silo_full = { center = Location(443, 342), color = { 56, 55, 56 }, diff = { 7, 7, 7 }, },
@@ -60,8 +64,8 @@ function M:start()
         { id = "soybean", title = "Soybean", type = 'crop', tab = 'silo', cat = 'field', offset_x = 196, offset_y = -250, slide = 1, produce_time = 60 * 20 },
         { id = "sugarcane", title = "Sugarcane", type = 'crop', tab = 'silo', cat = 'field', offset_x = 84, offset_y = -128, slide = 1, produce_time = 60 * 30 },
         --
-        { id = "bread", title = "Bread", type = 'product', tab = 'barn', cat = 'bakery', resources = { 'wheat' }, offset_x = grid5[3][1], offset_y = grid5[3][2], slide = 1, produce_time = 60 * 5 },
-        { id = "corn_bread", title = "Corn Bread", type = 'product', tab = 'barn', cat = 'bakery', resources = { 'corn', 'egg' }, offset_x = grid5[5][1], offset_y = grid5[5][2], slide = 1, produce_time = 60 * 30 },
+        { id = "bread", title = "Bread", type = 'product', tab = 'barn', cat = 'bakery', resources = { { 'wheat', 3 } }, offset_x = grid5[3][1], offset_y = grid5[3][2], slide = 1, produce_time = 60 * 5 },
+        { id = "corn_bread", title = "Corn Bread", type = 'product', tab = 'barn', cat = 'bakery', resources = { { 'corn', 2 }, { 'egg', 2 } }, offset_x = grid5[5][1], offset_y = grid5[5][2], slide = 1, produce_time = 60 * 30 },
         --
         { id = "pig_feed", title = "Pig Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { 'carrot', 'soybean' }, offset_x = grid5[1][1], offset_y = grid5[1][2], slide = 1, produce_time = 60 * 20 },
         { id = "sheep_feed", title = "Sheep Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { 'wheat', 'soybean' }, offset_x = grid5[2][1], offset_y = grid5[2][2], slide = 1, produce_time = 60 * 30 },
@@ -75,11 +79,13 @@ function M:start()
     for i = 1, #GV.PRODUCTS do
         GV.PRODUCTS[i].timer = false
         GV.PRODUCTS[i].stock = 0
+        GV.PRODUCTS[i].require = 0
         GV.PRODUCTS[i].keep = 0
+        GV.PRODUCTS[i].price = 0
     end
 
     -- only for crops
-    local crops = luall.table_by_group(GV.PRODUCTS,"type", "crop")
+    local crops = luall.table_by_group(GV.PRODUCTS, "type", "crop")
     for i = 1, #crops do
         crops[i].lanes = {}
     end

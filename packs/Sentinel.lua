@@ -35,6 +35,7 @@ end
 function M:checkAll()
     self:networkReset()
     self:screenIsClean()
+    botl.align()
 end
 
 return M

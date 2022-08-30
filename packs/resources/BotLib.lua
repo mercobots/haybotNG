@@ -15,6 +15,7 @@ local holder_list = {
 }
 
 local btn_close_list = Image:generateBulkList('btn/close/', 2)
+local random_forms = { "btn_settings", "btn_vouchers", "btn_boosters", "btn_letter" }
 
 local function _zoom(pt1StartX, pt1StartY, pt1EndX, pt1EndY, pt2StartX, pt2StartY, pt2EndX, pt2EndY, delay, debug)
     if debug then
@@ -154,13 +155,29 @@ function M.clearScreen(t)
         elseif luall.is_timeout(timer:check(), t) then
             break
         else
-            luall.btn_back()
-            t = t + 1
+            --luall.btn_back()
+           -- t = t + 1
         end
     end
 
     usePreviousSnap(false)
     return result
+end
+
+-- ----------------------------------
+-- clearScreen
+-- ----------------------------------
+function M.openRandomForm()
+    local i = math.random(1, #random_forms)
+    local form = random_forms[i]
+
+    if Color:existsClick(GV.OBJ[form]) then
+        wait(1)
+        if not M.btn_close("click", 3) then
+            return M.clearScreen(3)
+        end
+    end
+    return false
 end
 
 -- switchSlides
@@ -247,6 +264,14 @@ function M.align(timeout, align_spot)
     end
 
     --
+end
+
+function M.getGVProductBy(value, field)
+    local i = luall.in_table(GV.PRODUCTS, value, field)
+    if i < 0 then
+        return false
+    end
+    return GV.PRODUCTS[i]
 end
 
 return M
