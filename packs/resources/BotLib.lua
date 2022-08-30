@@ -15,7 +15,8 @@ local holder_list = {
 }
 
 local btn_close_list = Image:generateBulkList('btn/close/', 2)
-local random_forms = { "btn_settings", "btn_vouchers", "btn_boosters", "btn_letter" }
+--local random_forms = { "btn_settings", "btn_vouchers", "btn_boosters", "btn_letter" }
+local random_forms = { "btn_settings", "btn_vouchers", "btn_boosters" }
 
 local function _zoom(pt1StartX, pt1StartY, pt1EndX, pt1EndY, pt2StartX, pt2StartY, pt2EndX, pt2EndY, delay, debug)
     if debug then
@@ -156,7 +157,7 @@ function M.clearScreen(t)
             break
         else
             --luall.btn_back()
-           -- t = t + 1
+            -- t = t + 1
         end
     end
 
@@ -172,10 +173,21 @@ function M.openRandomForm()
     local form = random_forms[i]
 
     if Color:existsClick(GV.OBJ[form]) then
-        wait(1)
-        if not M.btn_close("click", 3) then
-            return M.clearScreen(3)
+        local timer = Timer()
+        local old_close_btn = M.btn_close("exists", 2)
+        wait(0.1)
+        while true do
+            local new_close_btn = M.btn_close("exists", 0)
+            if old_close_btn and new_close_btn and luall.location_equal(old_close_btn.center.obj, new_close_btn.center.obj, 3) then
+                click(new_close_btn.target.obj)
+                return true
+            end
+            old_close_btn = new_close_btn
+            if luall.is_timeout(timer:check(),30) then
+                break
+            end
         end
+        M.clearScreen(5)
     end
     return false
 end

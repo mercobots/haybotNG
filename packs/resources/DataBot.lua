@@ -67,6 +67,10 @@ function M:start()
         { id = "bread", title = "Bread", type = 'product', tab = 'barn', cat = 'bakery', resources = { { 'wheat', 3 } }, offset_x = grid5[3][1], offset_y = grid5[3][2], slide = 1, produce_time = 60 * 5 },
         { id = "corn_bread", title = "Corn Bread", type = 'product', tab = 'barn', cat = 'bakery', resources = { { 'corn', 2 }, { 'egg', 2 } }, offset_x = grid5[5][1], offset_y = grid5[5][2], slide = 1, produce_time = 60 * 30 },
         --
+        { id = "chili_popcorn", title = "Chili Popcorn", type = 'product', tab = 'barn', cat = 'popcorn_pot', resources = { { 'corn', 2 }, { 'chili_pepper', 2 } }, offset_x = grid5[1][1], offset_y = grid5[1][2], slide = 1, produce_time = 60 * 60 * 2 },
+        { id = "honey_popcorn", title = "Honey Popcorn", type = 'product', tab = 'barn', cat = 'popcorn_pot', resources = { { 'corn', 2 }, { 'honey', 2 } }, offset_x = grid5[2][1], offset_y = grid5[2][2], slide = 1, produce_time = 60 * 30 * 3 },
+        { id = "popcorn", title = "Popcorn", type = 'product', tab = 'barn', cat = 'popcorn_pot', resources = { { 'corn', 2 } }, offset_x = grid5[3][1], offset_y = grid5[3][2], slide = 1, produce_time = 60 * 30 },
+        --
         { id = "pig_feed", title = "Pig Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { 'carrot', 'soybean' }, offset_x = grid5[1][1], offset_y = grid5[1][2], slide = 1, produce_time = 60 * 20 },
         { id = "sheep_feed", title = "Sheep Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { 'wheat', 'soybean' }, offset_x = grid5[2][1], offset_y = grid5[2][2], slide = 1, produce_time = 60 * 30 },
         { id = "chicken_feed", title = "Chicken Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { 'wheat', 'corn' }, offset_x = grid5[3][1], offset_y = grid5[3][2], slide = 1, produce_time = 60 * 5 },

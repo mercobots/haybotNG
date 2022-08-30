@@ -40,7 +40,6 @@ end
 -------------------------------------------------------------------------------
 function M:start()
     self.crop = Queue:getNextProduct("field")
-
     if not self.crop then
         Console:show("No crops to plant")
         return false
@@ -50,7 +49,7 @@ function M:start()
 
     -- check for free lanes
     local allowed_lanes, start_lane, end_lane = self:getAllowedLanes()
-    if not allowed_lanes then
+    if #allowed_lanes < 1 then
         Console:show("No lanes available")
         return false
     end
@@ -73,7 +72,7 @@ function M:start()
 
             -- change move range
             self.Move.rows = (end_lane - start_lane) + 1
-            print(self.Move.rows, "Plant rows")
+            --print(self.Move.rows, "Plant rows")
 
             -- move across the field
             self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
@@ -85,7 +84,7 @@ function M:start()
         if tool_type == 2 then
             -- change move range
             self.Move.rows = (self.max_lanes - start_lane) + 1
-            print(self.Move.rows, "Harvest rows")
+            --print(self.Move.rows, "Harvest rows")
 
             -- move across the field
             self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
@@ -214,8 +213,7 @@ function M:getField(start_lane)
         end
 
         -- creates a region from 1º holder match 10x10 and check if new click is in the region
-        local holder_R = Region(holder.center.x - 5, holder.center.y - 5, 10, 10)
-        if luall.location_in_region(click_confirm.center.obj, holder_R) then
+        if luall.location_equal(holder.center.obj, click_confirm.center.obj, 10) then
 
             -- tool type -1  = error, 0 = growing 1 = crop , 2 = scythe
             local tool, tool_type = self:getFieldStatus(field)

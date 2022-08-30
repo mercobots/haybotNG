@@ -18,13 +18,12 @@ local anchor_offset = { 210, 65 }
 -------------------------------------------------------------------------------
 
 
+
 function M:set()
     self.current_page = 1
     self.AD = OTimer:new(60 * 5)
     --
-    setContinueClickTiming(0.5, 0.1)
-    --
-    self.total_pages = math.ceil(GV.CFG.general.RSS_SLOTS)
+    self.total_pages = math.ceil(GV.CFG.general.RSS_SLOTS / 10)
     --
     --
 end
@@ -34,6 +33,10 @@ function M:start()
 
     if Queue:totalProducts("rss") < 1 then
         Console:show("No Products to sell")
+        return false
+    end
+
+    if self.AD:isRunning() then
         return false
     end
 
@@ -166,14 +169,14 @@ end
 function M:sell(product)
 
     --
-    if product.price == 1 then
-        Console:show('Sell Min')
-        click(GV.OBJ.rss_sell_min.center)
-    elseif product.price == 2 then
+    if product.price == 2 then
         Console:show('Sell Max')
         click(GV.OBJ.rss_sell_max.center)
-    else
+    elseif product.price == 2 then
         Console:show('Sell Normal')
+    elseif product.price == 4 then
+        Console:show('Sell Min')
+        click(GV.OBJ.rss_sell_min.center)
     end
 
     -- AD
@@ -229,7 +232,7 @@ function M:productHasStock(product)
         return true
     end
 
-   -- Console:show('[Stock Keep] ' .. product.stock .. '/' .. product.stock_keep)
+    -- Console:show('[Stock Keep] ' .. product.stock .. '/' .. product.stock_keep)
     Console:show(table.concat({ "[Stock Keep]", product.stock, "/", product.keep, "(+", product.require, ")" }))
     return false
 end
@@ -239,7 +242,6 @@ function M:getProductQuantity()
     -- right after M:selectProduct()
     local center = Image:getData('center')
     local _R = Region(center.x - 20, center.y + 10, 90, 45)
-    debug_r(_R)
     --
     local old_similar = Settings:get("MinSimilarity")
     Settings:set("MinSimilarity", 0.7)

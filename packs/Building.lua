@@ -25,13 +25,12 @@ local OTimer = require('OTimer')
 ---@param bottom number @building bottom location
 ---@return self @new class metatable
 -------------------------------------------------------------------------------
-function M:new(active, id, title, left, bottom)
+function M:new(id, title, left, bottom)
     local _self = {}
     _self.id = id or "_no_building_"
     _self.title = title or "Building"
     _self.left = left or 1
     _self.bottom = bottom or 1
-    _self.active = active
     _self.production_timeout = OTimer:new()
     setmetatable(_self, M)
     return _self
@@ -39,7 +38,8 @@ end
 
 -------------------------------------------------------------------------------
 function M:start()
-    if not self.active then
+    --
+    if #Queue:getData(self.id) < 1 then
         return false
     end
 
@@ -71,10 +71,7 @@ function M:start()
     end
 
     -- start product production
-    if not self:produce(anchor, product) then
-        botl.openRandomForm()
-        return false
-    end
+    self:produce(anchor, product)
 
     Queue:removeProduct(product.id)
     botl.openRandomForm()
@@ -153,6 +150,12 @@ function M:produce(anchor, product)
 
         if Image:R(full_R):exists("building/full.png", 1) then
             Console:show("No more slots")
+            -- TODO temp
+            if self.production_timeout:isStopped() then
+                self.production_timeout.timeout = product.produce_time
+                self.production_timeout:start()
+            end
+            -- TODO temp
             break
         end
 
@@ -160,6 +163,12 @@ function M:produce(anchor, product)
         if not botl.isHomeScreen(0) and botl.btn_close("exists") then
             -- enqueue missing resources
             self:enqueueResources(product.resources)
+            -- TODO temp
+            if self.production_timeout:isStopped() then
+                self.production_timeout.timeout = product.produce_time
+                self.production_timeout:start()
+            end
+            -- TODO temp
             botl.btn_close("click", 0)
             return false
         end
