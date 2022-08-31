@@ -50,10 +50,12 @@ function M:start()
     end
 
     -- get next enqueue product
-    local product = Queue:getNextProduct(self.id)
-    if not product then
+    local product_id = Queue:getNextProduct(self.id)
+    if not product_id then
+        Console:show("No products for " .. self.title)
         return false
     end
+    local product = botl.getGVProductBy(product_id, "id")
 
     Console:show(table.concat({ self.title, " - ", product.title }))
 
@@ -136,10 +138,14 @@ function M:produce(anchor, product)
     local slot = Location(anchor.x - 128, anchor.y + 152)
     local full_R = Region(anchor.x - 435, anchor.y, 635, 300)
     local timer = Timer()
+    local first_production = true
 
     self:resetRequiredResources(product.resources)
+    -- define timer so timeout can be increase by each product
+    self.production_timeout:start()
 
     while true do
+        -- secure infinite loop
         if luall.is_timeout(timer:check(), 30) then
             Console:show("Production timeout")
             return false
@@ -150,12 +156,6 @@ function M:produce(anchor, product)
 
         if Image:R(full_R):exists("building/full.png", 1) then
             Console:show("No more slots")
-            -- TODO temp
-            if self.production_timeout:isStopped() then
-                self.production_timeout.timeout = product.produce_time
-                self.production_timeout:start()
-            end
-            -- TODO temp
             break
         end
 
@@ -163,24 +163,23 @@ function M:produce(anchor, product)
         if not botl.isHomeScreen(0) and botl.btn_close("exists") then
             -- enqueue missing resources
             self:enqueueResources(product.resources)
-            -- TODO temp
-            if self.production_timeout:isStopped() then
-                self.production_timeout.timeout = product.produce_time
-                self.production_timeout:start()
-            end
-            -- TODO temp
             botl.btn_close("click", 0)
-            return false
+            break
         end
 
-        if self.production_timeout:isStopped() then
-            self.production_timeout:start()
-        end
 
         -- everything is fine
         self.production_timeout:increaseTimeout(product.produce_time)
-
+        first_production = false
     end
+
+    -- add some timeout if is the first production and no product is been  producing, this prevent
+    -- the bot opening this machine repeatedly
+    if first_production then
+        self.production_timeout.timeout = product.produce_time
+    end
+
+    self.production_timeout:reset()
 
     return true
 end
@@ -215,7 +214,9 @@ function M:enqueueResources(resources)
 
         --
         if Image:R(GV.REG.product_resources):exists("products/" .. product_id .. ".png", 0) then
-            Queue:addProduct(product_id, false, require)
+            local product = botl.getGVProductBy(product_id, "id")
+            product.require = product.require + require
+            Queue:addProduct(product_id)
         end
     end
 

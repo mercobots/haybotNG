@@ -16,15 +16,11 @@ local M = {
 local anchor_offset = { 210, 65 }
 
 -------------------------------------------------------------------------------
-
-
-
 function M:set()
     self.current_page = 1
     self.AD = OTimer:new(60 * 5)
     --
     self.total_pages = math.ceil(GV.CFG.general.RSS_SLOTS / 10)
-    --
     --
 end
 
@@ -36,9 +32,10 @@ function M:start()
         return false
     end
 
-    if self.AD:isRunning() then
+    if self.AD:isRunning() and not self:hasSell() and not self:enqueuedProductHasStock() then
         return false
     end
+
 
     self.current_page = 1
 
@@ -136,10 +133,14 @@ function M:sellController(empty)
 
     for box = 1, #empty do
         --
-        local product = Queue:getNextProduct("rss")
-        if not product then
+        -- get next enqueue product
+        local product_id = Queue:getNextProduct("rss")
+        if not product_id then
+            Console:show("No products for rss")
             return false
         end
+        local product = botl.getGVProductBy(product_id, "id")
+        Console:show("Sell Wheat")
         --
         click(empty[box])
 
@@ -147,11 +148,12 @@ function M:sellController(empty)
             return false
         end
 
-        if not self:selectProduct(product) then
+        local product_match = self:selectProduct(product)
+        if not product_match then
             return false
         end
 
-        if self:productHasStock(product) then
+        if self:productHasStock(product, product_match) then
             self:sell(product)
 
             -- update product stock after sell
@@ -197,62 +199,6 @@ function M:sell(product)
 end
 
 -------------------------------------------------------------------------------
-function M:selectTab(product)
-    if self.rss_tab == product.tab then
-        return true
-    else
-        local tab = product.tab
-        Console:show('Change Tab ' .. tab)
-        if Color:existsClick(GV.OBJ.rss_tab[tab], 3) then
-            self.rss_tab = product.tab
-            return true
-        end
-    end
-    Console:show('Can\'t select tab')
-    return false
-end
-
--------------------------------------------------------------------------------
-function M:selectProduct(product)
-    local img = 'rss/' .. product.id .. '.png'
-    Console:show('Select ' .. product.title)
-    if Image:R(GV.REG.rss_sell):existsClick(img) then
-        return true
-    end
-    Console:show('Select ' .. product.title .. ' - FAIL')
-    return false
-end
-
--------------------------------------------------------------------------------
-function M:productHasStock(product)
-    product.stock = product.stock > 0 and product.stock or self:getProductQuantity()
-    Console:show(product.title .. ' - ' .. product.stock)
-
-    if product.stock > (product.keep + product.require) then
-        return true
-    end
-
-    -- Console:show('[Stock Keep] ' .. product.stock .. '/' .. product.stock_keep)
-    Console:show(table.concat({ "[Stock Keep]", product.stock, "/", product.keep, "(+", product.require, ")" }))
-    return false
-end
-
--------------------------------------------------------------------------------
-function M:getProductQuantity()
-    -- right after M:selectProduct()
-    local center = Image:getData('center')
-    local _R = Region(center.x - 20, center.y + 10, 90, 45)
-    --
-    local old_similar = Settings:get("MinSimilarity")
-    Settings:set("MinSimilarity", 0.7)
-    --
-    local ocr, ocr_ok = numberOCRNoFindException(_R, 'set/1/_')
-    -- print(ocr, 'ocr')
-    Settings:set("MinSimilarity", old_similar)
-    return ocr
-end
-
--------------------------------------------------------------------------------
 function M:movePage(direction)
     if self.current_page >= self.total_pages then
         self.current_page = 1
@@ -273,17 +219,88 @@ function M:movePage(direction)
 end
 
 -------------------------------------------------------------------------------
+function M:selectTab(product)
+    if self.rss_tab == product.tab then
+        return true
+    else
+        local tab = product.tab
+        Console:show('Change Tab ' .. tab)
+        if Color:existsClick(GV.OBJ.rss_tab[tab], 3) then
+            self.rss_tab = product.tab
+            return true
+        end
+    end
+    Console:show('Can\'t select tab')
+    return false
+end
+
+-------------------------------------------------------------------------------
+function M:selectProduct(product)
+    local img = 'rss/' .. product.id .. '.png'
+    Console:show('Select ' .. product.title)
+    if Image:R(GV.REG.rss_sell):existsClick(img) then
+        return Image:getData()
+    end
+    Console:show('Select ' .. product.title .. ' - FAIL')
+    return false
+end
+
+-------------------------------------------------------------------------------
+function M:productHasStock(product, product_match)
+    if product.stock < 1 and product_match then
+        product.stock = self:getProductQuantity(product_match)
+    end
+    Console:show(product.title .. ' - ' .. product.stock)
+
+    if product.stock > (product.keep + product.require) then
+        return true
+    end
+
+    -- Console:show('[Stock Keep] ' .. product.stock .. '/' .. product.stock_keep)
+    Console:show(table.concat({ "[Stock Keep]", product.stock, "/", product.keep, "(+", product.require, ")" }))
+    return false
+end
+
+-------------------------------------------------------------------------------
+function M:enqueuedProductHasStock()
+    local data = Queue:getData("rss")
+    for i = 1, data do
+        local product_id = data[i]
+        local product = botl.getGVProductBy(product_id, "id")
+        if self:productHasStock(product) then
+            return true
+        end
+    end
+    return false
+end
+
+-------------------------------------------------------------------------------
+function M:getProductQuantity(product_match)
+    local center = product_match.center
+    local _R = Region(center.x - 20, center.y + 10, 90, 45)
+    wait(0.3)
+    --
+    local old_similar = Settings:get("MinSimilarity")
+    Settings:set("MinSimilarity", 0.7)
+    --
+    local ocr, ocr_ok = numberOCRNoFindException(_R, 'set/1/_')
+    -- print(ocr, 'ocr')
+    Settings:set("MinSimilarity", old_similar)
+    return ocr
+end
+
+-------------------------------------------------------------------------------
 function M:hasSell(action)
-    local target = botl.getHolder(0, anchor_offset)
-    if target then
-        local R = Region(target.x - 50, target.y - 50, 100, 100)
+    local holder = botl.getHolder(0, { 215, 52 })
+    if holder then
+        local R = Region(holder.target.x - 50, holder.target.y - 50, 100, 100)
         --debug_r(R)
-        if Image:R(R):exists('sold.png', 1) then
+        if Image:R(R):exists('rss/sold.png', 1) then
             Console:show('Has sold')
             if action == 'open' then
-                click(target.obj)
+                click(holder.target.obj)
             end
-            return target
+            return holder
         end
     end
     return false

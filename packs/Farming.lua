@@ -28,7 +28,7 @@ function M:set()
     self.Move = Move:new(
             GV.CFG.layout.FIELD_TOTAL_B,
             GV.CFG.layout.FIELD_TOTAL_L,
-            GV.FIELD_SIZE,
+            GV.FIELD_SIZE - 2,
             GV.CFG.general.FARM_FIELD_SPEED
     )
 end
@@ -39,11 +39,12 @@ end
 ---@return void
 -------------------------------------------------------------------------------
 function M:start()
-    self.crop = Queue:getNextProduct("field")
-    if not self.crop then
+    local crop_id = Queue:getNextProduct("field")
+    if not crop_id then
         Console:show("No crops to plant")
         return false
     end
+    self.crop = botl.getGVProductBy(crop_id, "id")
 
     botl.align()
 
@@ -133,8 +134,8 @@ function M:getLanesStatus()
     -- so for each enqueued crop get the lanes they are occupying , if any
     for i = 1, #self.crops do
 
-        -- if there is registered lanes , that means timer is assigned!
-        if #self.crops[i].lanes > 0 and self.crops[i].timer:isRunning() then
+        -- if there are registered lanes , that means timer is assigned!
+        if self.crops[i].lanes and #self.crops[i].lanes > 0 and self.crops[i].timer:isRunning() then
             occupied_lanes = luall.table_merge(occupied_lanes, self.crops[i].lanes)
         end
     end
@@ -163,7 +164,7 @@ function M:getAllowedLanes()
     local max_lanes = math.ceil(#free_lanes / #Queue:getData("field"))
     local allowed_lanes = {}
 
-    -- get the last lane available from free lanes, cuz sometimes required lanes is greater than free lanes
+    -- get the last lane available from free lanes, in case required lanes is greater than free lanes
     for i = 1, max_lanes do
         if not free_lanes[i] then
             break

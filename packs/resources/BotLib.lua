@@ -238,9 +238,9 @@ function M.align(timeout, align_spot)
     align_spot = align_spot or 1
     local timer = Timer()
     --
-    Console:show('Align')
     --
     while not M.getHolder(0, false, align_spot) do
+        Console:show('Align')
         local s_l_1 = Location(171, 144)
         local s_l_2 = Location(9999, 9999)
         local SS = Region(1050, 504, 151, 215)

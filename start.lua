@@ -19,6 +19,7 @@ Menu:start()
 
 -- Set Active products
 local function setDefaultProducts()
+    --print(GV.CFG.products)
     for i = 1, #GV.PRODUCTS do
         local product = GV.PRODUCTS[i]
         local cfg_active = string.upper(table.concat({ "PRO_", product.id, "_ACTIVE" }))
