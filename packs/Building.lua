@@ -32,6 +32,7 @@ function M:new(id, title, left, bottom)
     _self.left = left or 1
     _self.bottom = bottom or 1
     _self.production_timeout = OTimer:new()
+    _self.last_product_id = nil
     setmetatable(_self, M)
     return _self
 end
@@ -85,20 +86,15 @@ function M:collect(building)
     while true do
         click(building.obj)
 
-        -- collecting , still has products to collect
-        --if Color:exists(GV.OBJ.collect_product, 0) and
-        --        not Image:R(GV.REG.safe_area):exists("building/anchor.png", 0) then
-        --    return false
-        --end
-        --
-        -- building available
-        --if not Image:R(GV.REG.safe_area):exists("building/anchor.png", 0) then
-        --    return Image:getData('target')
-        --end
-
         if Image:R(GV.REG.safe_area):exists("building/anchor.png", 0) then
             Console:show(table.concat({ "Open ", self.title }))
             return Image:getData('target')
+        end
+
+        -- update last product produced stock
+        if self.last_product_id then
+            local product = botl.getGVProductBy(self.last_product_id,"id")
+            product.stock = product.stock + 1
         end
         Console:show("Collect Products")
     end
@@ -170,6 +166,7 @@ function M:produce(anchor, product)
 
         -- everything is fine
         self.production_timeout:increaseTimeout(product.produce_time)
+        self.last_product_id = product.id
         first_production = false
     end
 

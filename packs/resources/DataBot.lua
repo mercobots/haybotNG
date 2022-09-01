@@ -40,8 +40,9 @@ function M:start()
             silo = { center = Location(250, 225), color = { 71, 54, 46 }, diff = { 7, 7, 7 }, },
             barn = { center = Location(247, 363), color = { 64, 60, 56 }, diff = { 7, 7, 7 }, },
         },
-        rss_sell_max = {center = Location(887, 426),color = {236,158,0},diff = {7,7,7},},
-        rss_sell_min = {center = Location(802, 426),color = {236,160,0},diff = {7,7,7},},
+        rss_sell_max = { center = Location(887, 426), color = { 236, 158, 0 }, diff = { 7, 7, 7 }, },
+        rss_sell_min = { center = Location(802, 426), color = { 236, 160, 0 }, diff = { 7, 7, 7 }, },
+
         rss_btn_sell = { center = Location(949, 628), color = { 240, 161, 0 }, diff = { 7, 7, 7 }, },
         rss_ad_sell = { center = Location(752, 599), color = { 255, 251, 215 }, diff = { 7, 7, 7 }, targetOffset = { 10, -70 } },
         rss_ad_sell_edit = { center = Location(710, 449), color = { 255, 251, 215 }, diff = { 7, 7, 7 }, targetOffset = { 10, -50 } },
@@ -71,9 +72,9 @@ function M:start()
         { id = "honey_popcorn", title = "Honey Popcorn", type = 'product', tab = 'barn', cat = 'popcorn_pot', resources = { { 'corn', 2 }, { 'honey', 2 } }, offset_x = grid5[2][1], offset_y = grid5[2][2], slide = 1, produce_time = 60 * 30 * 3 },
         { id = "popcorn", title = "Popcorn", type = 'product', tab = 'barn', cat = 'popcorn_pot', resources = { { 'corn', 2 } }, offset_x = grid5[3][1], offset_y = grid5[3][2], slide = 1, produce_time = 60 * 30 },
         --
-        { id = "pig_feed", title = "Pig Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { 'carrot', 'soybean' }, offset_x = grid5[1][1], offset_y = grid5[1][2], slide = 1, produce_time = 60 * 20 },
-        { id = "sheep_feed", title = "Sheep Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { 'wheat', 'soybean' }, offset_x = grid5[2][1], offset_y = grid5[2][2], slide = 1, produce_time = 60 * 30 },
-        { id = "chicken_feed", title = "Chicken Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { 'wheat', 'corn' }, offset_x = grid5[3][1], offset_y = grid5[3][2], slide = 1, produce_time = 60 * 5 },
+        { id = "pig_feed", title = "Pig Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { { 'carrot', 2 }, { 'soybean', 1 } }, offset_x = grid5[1][1], offset_y = grid5[1][2], slide = 1, produce_time = 60 * 20 },
+        { id = "sheep_feed", title = "Sheep Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { { 'wheat', 3 }, { 'soybean', 1 } }, offset_x = grid5[2][1], offset_y = grid5[2][2], slide = 1, produce_time = 60 * 30 },
+        { id = "chicken_feed", title = "Chicken Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { { 'wheat', 2 }, { 'corn', 1 } }, offset_x = grid5[3][1], offset_y = grid5[3][2], slide = 1, produce_time = 60 * 5 },
         --
         { id = "milk", title = "Milk", type = 'product', tab = 'barn', cat = 'cow', resources = { 'cow_feed' }, offset_x = grid5[5][1], offset_y = grid5[5][2], slide = 1, produce_time = 60 * 10 },
 
@@ -93,6 +94,32 @@ function M:start()
     for i = 1, #crops do
         crops[i].lanes = {}
     end
+
+    local function multiplesMachines(machine_id, machines_num)
+        local product_data = luall.table_by_group(GV.PRODUCTS, "cat", machine_id)
+        local machines = {}
+        for i = 1, machines_num do
+            if i == 1 then
+                machines[i] = product_data
+            else
+                machines[i] = luall.clone_table(product_data)
+            end
+        end
+
+        for m_i, machine in ipairs(machines) do
+            for i = 1, #product_data do
+                machine[i].id = table.concat({ machine[i].id, "_", m_i })
+                machine[i].cat = table.concat({ machine[i].cat, "_", m_i })
+                if m_i > 1 then
+                    GV.PRODUCTS[#GV.PRODUCTS + 1] = luall.clone_table( machine[i])
+                end
+            end
+
+        end
+        machines = {}
+    end
+
+    multiplesMachines("feed_mill", 2)
 end
 
 return M

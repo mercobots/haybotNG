@@ -120,6 +120,7 @@ function M:productsSettings()
             ----
             ----
             { type = 'text', label = '\n# BAKERY #' },
+            --
             { type = 'checkbox', id = 'PRO_BREAD_ACTIVE', label = '\tBread', value = false, new_row = false },
             { type = 'selectbox_index', id = 'PRO_BREAD_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
             { type = 'input_number', id = 'PRO_BREAD_KEEP', label = '\tKeep\t', value = 10 },
@@ -131,8 +132,20 @@ function M:productsSettings()
             --{ type = 'checkbox', id = '#', label = '\tCookie', value = false, new_row = false },
             --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
             --{ type = 'input_number', id = '#', label = '\tKeep\t', value = 10 },
+            { type = 'text', label = '\n# FEED_MILL#' },
+            --
+            { type = 'text', label = '\n1º - Mill -' },
+            { type = 'checkbox', id = 'PRO_CHICKEN_FEED_1_ACTIVE', label = '\tChicken Feed', value = false, new_row = false },
+            { type = 'selectbox_index', id = 'PRO_CHICKEN_FEED_1_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
+            { type = 'input_number', id = 'PRO_CHICKEN_FEED_1_KEEP', label = '\tKeep\t', value = 10 },
+            { type = 'text', label = '\n2º - Mill -' },
+            { type = 'checkbox', id = 'PRO_CHICKEN_FEED_2_ACTIVE', label = '\tChicken Feed', value = false, new_row = false },
+            { type = 'selectbox_index', id = 'PRO_CHICKEN_FEED_2_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
+            { type = 'input_number', id = 'PRO_CHICKEN_FEED_2_KEEP', label = '\tKeep\t', value = 10 },
+
             ----
             { type = 'text', value = '\n# POPCORN POT #', },
+            --
             { type = 'checkbox', id = 'PRO_POPCORN_ACTIVE', label = '\tPopcorn', value = false, new_row = false },
             { type = 'selectbox_index', id = 'PRO_POPCORN_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
             { type = 'input_number', id = 'PRO_POPCORN_KEEP', label = '\tKeep\t', value = 10 },
@@ -211,13 +224,12 @@ function M:layoutSettings()
             --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
             { type = 'input_number', id = 'BAKERY_START_L', label = '\tBakery\t[left]', value = 15, new_row = false },
             { type = 'input_number', id = 'BAKERY_START_B', label = '\t[Bottom]', value = 6 },
+            { type = 'input_number', id = 'FEED_MILL_1_START_L', label = '\tFeed Mill (1)\t[left]', value = 15, new_row = false },
+            { type = 'input_number', id = 'FEED_MILL_1_START_B', label = '\t[Bottom]', value = 9 },
+            { type = 'input_number', id = 'FEED_MILL_2_START_L', label = '\tFeed Mill (2)\t[left]', value = 15, new_row = false },
+            { type = 'input_number', id = 'FEED_MILL_2_START_B', label = '\t[Bottom]', value = 12 },
             { type = 'input_number', id = 'POPCORN_POT_START_L', label = '\tPopcorn Pot\t[left]', value = 12, new_row = false },
             { type = 'input_number', id = 'POPCORN_POT_START_B', label = '\t[Bottom]', value = 6 },
-
-            --{ type = 'input_number', id = '#', label = '\tFeed Mill (1)\t[left]', value = 1, new_row = false },
-            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
-            --{ type = 'input_number', id = '#', label = '\tFeed Mill (2)\t[left]', value = 1, new_row = false },
-            --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
             --{ type = 'input_number', id = '#', label = '\tBeehive Tree\t[left]', value = 1, new_row = false },
             --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
         }

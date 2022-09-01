@@ -8,18 +8,16 @@ local OTimer = require('OTimer')
 local Queue = require("Queue")
 
 -------------------------------------------------------------------------------
-local M = {
-    rss_tab = 'none',
-    current_page = 1,
-}
+local M = {}
 
 local anchor_offset = { 210, 65 }
 
 -------------------------------------------------------------------------------
 function M:set()
+    self.rss_tab = 'none'
     self.current_page = 1
+    self.first_run = true
     self.AD = OTimer:new(60 * 5)
-    --
     self.total_pages = math.ceil(GV.CFG.general.RSS_SLOTS / 10)
     --
 end
@@ -32,17 +30,24 @@ function M:start()
         return false
     end
 
-    if self.AD:isRunning() and not self:hasSell() and not self:enqueuedProductHasStock() then
-        return false
+    if not self.first_run then
+        if not self:enqueuedProductHasStock() then
+            return false
+        elseif self.AD:isRunning() and not self:hasSell() then
+            return false
+        end
     end
 
-
+    --
+    self.first_run = false
     self.current_page = 1
 
+    --
     if not self:open() then
         return false
     end
 
+    --
     for page = 1, self.total_pages do
         local empty, full, sold = self:getBoxes()
         self:collectSold(sold)
@@ -50,7 +55,6 @@ function M:start()
             break
         end
         self:movePage()
-
     end
 
 end
@@ -236,7 +240,7 @@ end
 
 -------------------------------------------------------------------------------
 function M:selectProduct(product)
-    local img = 'rss/' .. product.id .. '.png'
+    local img = Pattern('rss/' .. product.id .. '.png'):similar(0.8)
     Console:show('Select ' .. product.title)
     if Image:R(GV.REG.rss_sell):existsClick(img) then
         return Image:getData()
@@ -264,7 +268,7 @@ end
 -------------------------------------------------------------------------------
 function M:enqueuedProductHasStock()
     local data = Queue:getData("rss")
-    for i = 1, data do
+    for i = 1, #data do
         local product_id = data[i]
         local product = botl.getGVProductBy(product_id, "id")
         if self:productHasStock(product) then
@@ -279,6 +283,7 @@ function M:getProductQuantity(product_match)
     local center = product_match.center
     local _R = Region(center.x - 20, center.y + 10, 90, 45)
     wait(0.3)
+    --debug_r(_R)
     --
     local old_similar = Settings:get("MinSimilarity")
     Settings:set("MinSimilarity", 0.7)

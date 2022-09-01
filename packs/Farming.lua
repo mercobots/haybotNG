@@ -39,68 +39,88 @@ end
 ---@return void
 -------------------------------------------------------------------------------
 function M:start()
-    local crop_id = Queue:getNextProduct("field")
-    if not crop_id then
-        Console:show("No crops to plant")
-        return false
-    end
-    self.crop = botl.getGVProductBy(crop_id, "id")
+    local timer = Timer()
+    while true do
 
-    botl.align()
-
-    -- check for free lanes
-    local allowed_lanes, start_lane, end_lane = self:getAllowedLanes()
-    if #allowed_lanes < 1 then
-        Console:show("No lanes available")
-        return false
-    end
-
-    for round = 1, 2 do
-        -- get field location and field status
-        local field, tool, tool_type = self:getField(start_lane)
-        if not field then
+        local crop_id = Queue:getNextProduct("field")
+        if not crop_id then
+            Console:show("No crops to plant")
             return false
         end
 
-        -- Plant
-        if tool_type == 1 then
-            -- register occupied lanes
-            self.crop.lanes = allowed_lanes
+        -- get next crops in queue
+        self.crop = botl.getGVProductBy(crop_id, "id")
 
-            -- start timer crop
-            self.crop.timer = OTimer:new(self.crop.produce_time)
-            self.crop.timer:start()
+        botl.align()
 
-            -- change move range
-            self.Move.rows = (end_lane - start_lane) + 1
-            --print(self.Move.rows, "Plant rows")
-
-            -- move across the field
-            self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
-            Queue:removeProduct(self.crop.id)
-            break
+        -- check for free lanes
+        local allowed_lanes, start_lane, end_lane = self:getAllowedLanes()
+        if #allowed_lanes < 1 then
+            Console:show("No lanes available")
+            return false
         end
 
-        -- harvest
-        if tool_type == 2 then
-            -- change move range
-            self.Move.rows = (self.max_lanes - start_lane) + 1
-            --print(self.Move.rows, "Harvest rows")
+        for _ = 1, 2 do
 
-            -- move across the field
-            self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
+            -- get field location
+            local field = self:getField(start_lane)
+            if not field then
+                return false
+            end
 
-            -- reset harvest crops by timer/timeout
-            self:resetCrops()
+            -- get field status
+            -- tool type -1  = error, 0 = growing, 1 = crop, 2 = scythe
+            local tool, tool_type = self:getFieldStatus(field)
+            if not tool then
+                return false
+            end
 
-            -- check silo capacity
-            if self:siloFull() then
+
+            -- Plant
+            if tool_type == 1 then
+                -- register occupied lanes
+                self.crop.lanes = allowed_lanes
+
+                -- start timer crop
+                self.crop.timer = OTimer:new(self.crop.produce_time)
+                self.crop.timer:start()
+
+                -- change move range
+                self.Move.rows = (end_lane - start_lane) + 1
+                --print(self.Move.rows, "Plant rows")
+
+                -- move across the field
+                self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
+                Queue:removeProduct(self.crop.id)
                 break
             end
+
+            -- harvest
+            if tool_type == 2 then
+                -- change move range
+                self.Move.rows = (self.max_lanes - start_lane) + 1
+                --print(self.Move.rows, "Harvest rows")
+
+                -- move across the field
+                self.Move:start({ tool.obj, field.obj }, 'up_left', 'up_right')
+
+                -- reset harvest crops by timer/timeout
+                self:resetCrops()
+
+                -- check silo capacity
+                if self:siloFull() then
+                    break
+                end
+            end
+
         end
 
+        -- avoid infinite loop
+        if luall.is_timeout(timer:check(),60) then
+            Console:show("Farming DEBUG")
+            return false
+        end
     end
-
 end
 
 -------------------------------------------------------------------------------
@@ -113,8 +133,10 @@ function M:resetCrops()
         -- if there are registered lanes , that means timer is assigned! so if timeout
         -- theses crops are ready to harvest and the field will be free
         if self.crops[i].timer and self.crops[i].timer:isTimeout() then
+            local stock = (#self.crop[i].lanes * GV.CFG.layout.FIELD_TOTAL_L) * 2
             self.crops[i].timer = false
-            self.crops[i].lanes = 0
+            self.crops[i].lanes = {}
+            self.crops[i].stock = stock
         end
     end
 end
@@ -204,7 +226,7 @@ function M:getField(start_lane)
 
         -- click filed
         click(field.obj)
-        wait(0.2)
+        wait(0.5)
 
         -- check if screen move from last click
         local click_confirm = botl.getHolder(0, offset)
@@ -214,16 +236,8 @@ function M:getField(start_lane)
         end
 
         -- creates a region from 1º holder match 10x10 and check if new click is in the region
-        if luall.location_equal(holder.center.obj, click_confirm.center.obj, 10) then
-
-            -- tool type -1  = error, 0 = growing 1 = crop , 2 = scythe
-            local tool, tool_type = self:getFieldStatus(field)
-            if tool then
-                return field, tool, tool_type
-            end
-            --
-            Console:show("Field status undefined")
-            return false, tool, tool_type
+        if luall.location_equal(holder.center.obj, click_confirm.center.obj, 5) then
+            return field
         end
     end
     return false
@@ -240,7 +254,7 @@ function M:getFieldStatus(field)
     Console:show("Click Field")
     --
 
-    -- create small region to catch ongoing img
+    -- create small region to for ongoing img
     local x, y, w, h = field.x + 70, field.y + 50, 230, 90
     local r = Region(x, y, w, h)
     if Image:R(r):exists(Pattern('ongoing.png'):similar(0.8), 1) then
@@ -248,7 +262,7 @@ function M:getFieldStatus(field)
         return false, 0
     end
 
-    -- create small region to catch if field is to harvest or plant
+    -- create small region to for scythe
     w, h = 400, 300
     x = field.x - w
     y = field.y - h
@@ -274,7 +288,7 @@ function M:getFieldStatus(field)
         return Image:getData('center'), 2
     end
 
-    return false, 0
+    return false, -1
 end
 
 -------------------------------------------------------------------------------

@@ -48,6 +48,8 @@ setDefaultProducts()
 -- Set Machines
 local Bakery = Building:new("bakery", "Bakery", GV.CFG.layout.BAKERY_START_L, GV.CFG.layout.BAKERY_START_B)
 local PopcornPot = Building:new("popcorn_pot", "Popcorn Pot", GV.CFG.layout.POPCORN_POT_START_L, GV.CFG.layout.POPCORN_POT_START_B)
+local FeedMill_1 = Building:new("feed_mill_1", "Feed Mill 1", GV.CFG.layout.FEED_MILL_1_START_L, GV.CFG.layout.FEED_MILL_1_START_B)
+local FeedMill_2 = Building:new("feed_mill_2", "Feed Mill 2", GV.CFG.layout.FEED_MILL_2_START_L, GV.CFG.layout.FEED_MILL_2_START_B)
 
 -- Init Defaults values for Static Classes
 Farming:set()
@@ -57,8 +59,12 @@ RSS:set()
 
 while true do
     Sentinel:checkAll()
+    --
     Bakery:start()
     PopcornPot:start()
+    FeedMill_1:start()
+    FeedMill_2:start()
+    --
     Farming:start()
     RSS:start()
     wait(0.1)
