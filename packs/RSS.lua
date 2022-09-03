@@ -39,13 +39,14 @@ function M:start()
     end
 
     --
-    self.first_run = false
     self.current_page = 1
 
     --
     if not self:open() then
         return false
     end
+    --
+    self.first_run = false
 
     --
     for page = 1, self.total_pages do

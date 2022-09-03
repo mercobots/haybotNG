@@ -133,7 +133,7 @@ function M:resetCrops()
         -- if there are registered lanes , that means timer is assigned! so if timeout
         -- theses crops are ready to harvest and the field will be free
         if self.crops[i].timer and self.crops[i].timer:isTimeout() then
-            local stock = (#self.crop[i].lanes * GV.CFG.layout.FIELD_TOTAL_L) * 2
+            local stock = (#self.crops[i].lanes * GV.CFG.layout.FIELD_TOTAL_L) * 2
             self.crops[i].timer = false
             self.crops[i].lanes = {}
             self.crops[i].stock = stock
