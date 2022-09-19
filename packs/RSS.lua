@@ -11,6 +11,11 @@ local Queue = require("Queue")
 local M = {}
 
 local anchor_offset = { 210, 65 }
+-- create only 1, memory saver
+local btn_tab = {
+    bar = "btn/barn.png",
+    silo = "btn/silo.png",
+}
 
 -------------------------------------------------------------------------------
 function M:set()
@@ -135,7 +140,7 @@ end
 
 -------------------------------------------------------------------------------
 function M:sellController(empty)
-
+    local rectify_stock = true
     for box = 1, #empty do
         --
         -- get next enqueue product
@@ -153,12 +158,16 @@ function M:sellController(empty)
             return false
         end
 
+        -- check if product is still visible to select
         local product_match = self:selectProduct(product)
         if not product_match then
             return false
         end
 
+        -- force ocr if rectify is active
+        product_match = rectify_stock and product_match or rectify_stock
         if self:productHasStock(product, product_match) then
+            rectify_stock = false
             self:sell(product)
 
             -- update product stock after sell
@@ -167,6 +176,7 @@ function M:sellController(empty)
         else
             Queue:removeProduct(product.id, "rss")
             botl.btn_close("click", 0, GV.REG.rss_btn_close)
+            return false
         end
     end
     return true
@@ -230,10 +240,12 @@ function M:selectTab(product)
     else
         local tab = product.tab
         Console:show('Change Tab ' .. tab)
-        if Color:existsClick(GV.OBJ.rss_tab[tab], 3) then
+        if Image:R(GV.REG.safe_area):existsClick(btn_tab[tab]) then
             self.rss_tab = product.tab
             return true
         end
+        --if Color:existsClick(GV.OBJ.rss_tab[tab], 3) then
+        --end
     end
     Console:show('Can\'t select tab')
     return false
@@ -252,7 +264,8 @@ end
 
 -------------------------------------------------------------------------------
 function M:productHasStock(product, product_match)
-    if product.stock < 1 and product_match then
+    --if product.stock < 1 and product_match then
+    if product_match then
         product.stock = self:getProductQuantity(product_match)
     end
     Console:show(product.title .. ' - ' .. product.stock)

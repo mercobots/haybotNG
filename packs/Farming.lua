@@ -116,7 +116,7 @@ function M:start()
         end
 
         -- avoid infinite loop
-        if luall.is_timeout(timer:check(),60) then
+        if luall.is_timeout(timer:check(), 60) then
             Console:show("Farming DEBUG")
             return false
         end
@@ -205,13 +205,14 @@ end
 function M:getField(start_lane)
     Console:show("Search Field")
     local offset = { 360, 107 }
+    local holder_timeout = 0
     --local offset = { 365, 103 }
 
     -- 2x cuz sometimes the screens move and the target is not correct
-    for i = 1, 2 do
+    for try = 1, 2 do
 
         -- search for holder "cone image"
-        local holder = botl.getHolder(0, offset)
+        local holder = botl.getHolder(holder_timeout, offset)
         if not holder then
             Console:show("Holder not found")
             return false
@@ -228,17 +229,43 @@ function M:getField(start_lane)
         click(field.obj)
         wait(0.5)
 
-        -- check if screen move from last click
         local click_confirm = botl.getHolder(0, offset)
+
+        -- in case crop list is above holder image
         if not click_confirm then
-            Console:show("Holder confirm not found")
-            return false
+
+            -- clean screen
+            botl.openRandomForm()
+            wait(0.5)
+
+            -- 2º try
+            click_confirm = botl.getHolder(0, offset)
+            if not click_confirm then
+                Console:show("Holder confirm not found")
+                return false
+            end
+
+            -- click filed
+            click(field.obj)
+            wait(0.5)
         end
 
         -- creates a region from 1º holder match 10x10 and check if new click is in the region
         if luall.location_equal(holder.center.obj, click_confirm.center.obj, 5) then
             return field
         end
+
+        if try == 2 then
+            Console:show("Can't calibrate click field")
+            return false
+        end
+
+        botl.openRandomForm()
+
+
+        --holder_timeout = 1
+
+
     end
     return false
 end
