@@ -3,6 +3,7 @@ local Data = require("DataBot")
 local Queue = require("Queue")
 local Menu = require("Menu")
 local Sentinel = require("Sentinel")
+local Image = require("ImageHelper")
 --
 local Farming = require("Farming")
 local Building = require("Building")
@@ -44,6 +45,10 @@ local function setDefaultProducts()
     end
 end
 setDefaultProducts()
+
+-- Debug Options
+Image.highlight = GV.CFG.general.DEBUG_MODE
+DEBUG_R = GV.CFG.general.DEBUG_MODE
 
 -- Set Machines
 local Bakery = Building:new("bakery", "Bakery", GV.CFG.layout.BAKERY_START_L, GV.CFG.layout.BAKERY_START_B)

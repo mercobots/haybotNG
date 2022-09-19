@@ -20,7 +20,7 @@ end
 --
 function M:start()
     --
-    self:updateGVValues()
+    self:saveDefaultValues()
     --
     while true do
         local form = Form:new(table.concat({ GV.SETTINGS.BRAND, " - ", GV.SETTINGS.BOT_VERSION, " - ", GV.SETTINGS.BOT_NAME, }))
@@ -40,6 +40,7 @@ function M:start()
         local op = form:getDataId('OP_MENU')
 
         if op == 1 then
+
             break
         elseif op == 2 then
             self:layoutSettings()
@@ -53,8 +54,16 @@ function M:start()
     end
 end
 -------------------------------------------------------------------------------
+function M:saveDefaultValues()
+    self:layoutSettings(true)
+    self:generalSettings(true)
+    self:productsSettings(true)
+    self:updateGVValues()
+end
+
+-------------------------------------------------------------------------------
 function M:updateGVValues()
-    GV.CFG ={
+    GV.CFG = {
         general = Memory:load("config_general"),
         layout = Memory:load("config_layout"),
         products = Memory:load("config_products"),
@@ -62,7 +71,7 @@ function M:updateGVValues()
 end
 
 -------------------------------------------------------------------------------
-function M:generalSettings()
+function M:generalSettings(only_data)
     --
     local form = Form:new("General Settings")
     form:addForm {
@@ -78,12 +87,14 @@ function M:generalSettings()
     }
     local data = Memory:load("config_general")
     form:loadData(data, true)
-    form:show()
+    --
+    form:show(only_data)
+    --
     Memory:save("config_general", form:getMinifiedData())
     self:updateGVValues()
 end
 -------------------------------------------------------------------------------
-function M:productsSettings()
+function M:productsSettings(only_data)
     --
     Memory:load("config_products")
     local form = Form:new("Products Settings")
@@ -185,13 +196,13 @@ function M:productsSettings()
     }
     local data = Memory:load("config_products")
     form:loadData(data, true)
-    form:show()
+    form:show(only_data)
     Memory:save("config_products", form:getMinifiedData())
     self:updateGVValues()
 end
 
 -------------------------------------------------------------------------------
-function M:layoutSettings()
+function M:layoutSettings(only_data)
     local form = Form:new("Layout Settings")
     form:addForm {
         ele = {
@@ -236,7 +247,7 @@ function M:layoutSettings()
     }
     local data = Memory:load("config_layout")
     form:loadData(data, true)
-    form:show()
+    form:show(only_data)
     Memory:save("config_layout", form:getMinifiedData())
     self:updateGVValues()
 end
