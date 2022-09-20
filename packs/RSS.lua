@@ -54,15 +54,18 @@ function M:start()
     self.first_run = false
 
     --
-    for page = 1, self.total_pages do
+    repeat
         local empty, full, sold = self:getBoxes()
         self:collectSold(sold)
         if not self:sellController(empty) then
             break
         end
-        self:movePage()
-    end
+    until not self:movePage()
 
+    -- active ad on last sell
+    if GV.CFG.general.RSS_AD_INDEX == 2 then
+        self:createAd()
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -196,8 +199,8 @@ function M:sell(product)
         click(GV.OBJ.rss_sell_min.center)
     end
 
-    -- AD
-    if not self.AD:isRunning() then
+    -- Ad not running and and active at 1º sell
+    if not self.AD:isRunning() and GV.CFG.general.RSS_AD_INDEX == 1 then
         Console:show('Create AD')
         if not Color:exists(GV.OBJ.rss_ad_sell) then
             click(Color:getTarget(GV.OBJ.rss_ad_sell))
@@ -215,12 +218,15 @@ end
 
 -------------------------------------------------------------------------------
 function M:movePage(direction)
-    if self.current_page >= self.total_pages then
+    direction = direction or "left"
+    if direction == "left" and self.current_page >= self.total_pages then
         self.current_page = 1
         return false
+    elseif direction == "right" and self.current_page <= 1 then
+        return false
     end
-    direction = direction or 'left'
-    Console:show('Move boxes - ' .. direction)
+
+    Console:show('Move page - ' .. direction)
     local l_left, l_right = Location(295, 435), Location(1000, 435)
     if direction == 'left' then
         self.current_page = self.current_page + 1
@@ -228,7 +234,6 @@ function M:movePage(direction)
     else
         self.current_page = self.current_page - 1
         dragDrop(l_left, l_right)
-
     end
     return true
 end
@@ -328,13 +333,17 @@ end
 
 -- ========================================
 function M:createAd()
+   -- print("Create AD")
     if self.AD:isRunning() then
+        print(" AD running")
         Console:show('RSS AD - ' .. self.AD:timeLeft())
         return true
     end
-
+    --print(" shop Open")
     if self:open() then
+
         repeat
+            --print("Get Slots")
             local empty, full, sold = self:getBoxes()
             for i = 1, #full do
                 click(full[i])
@@ -342,10 +351,10 @@ function M:createAd()
 
                 if Color:exists(GV.OBJ.rss_advertised, 3) then
                     Console:show('Ad advertised')
-                    luall.btn_back()
+                    botl.btn_close("click")
                 elseif Color:exists(GV.OBJ.rss_ad_sell_edit, 0) then
                     self.AD:start()
-                    luall.btn_back(2)
+                    botl.btn_close("click")
                     return true
                 else
                     click(Color:getTarget(GV.OBJ.rss_ad_sell_edit))
@@ -356,7 +365,7 @@ function M:createAd()
                     end
                 end
             end
-        until not self:movePage()
+        until not self:movePage("right")
         Console:show('unable to create AD')
     end
 

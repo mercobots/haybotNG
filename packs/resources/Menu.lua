@@ -80,9 +80,13 @@ function M:generalSettings(only_data)
             { type = 'checkbox', id = 'DEBUG_MODE', label = '\tDebug', value = false },
             --
             { type = 'text', label = '\n# Farm #' },
-            { type = 'input_number', id = 'RSS_SLOTS', label = '\tRSS Slots', value = 10 },
             { type = 'selectbox_index', id = 'FARM_FIELD_SPEED', label = '\tPlant/Harvest\tspeed', value = 25, options = move_speed, new_row = false },
-            { type = 'selectbox_index', id = 'FARM_FIELD_DIRECTION', label = '\tDirection', value = 1, options = move_direction, new_row = false },
+            { type = 'selectbox_index', id = 'FARM_FIELD_DIRECTION', label = '\tDirection', value = 1, options = move_direction },
+            --
+            { type = 'text', label = '\n# RSS #' },
+            { type = 'input_number', id = 'RSS_SLOTS', label = '\tRSS Slots', value = 10 },
+            { type = 'selectbox_index', id = 'RSS_AD_INDEX', label = '\tRSS AD on ', options = {"1º Sale", "Last Sale"}, value = 1 },
+
         }
     }
     local data = Memory:load("config_general")

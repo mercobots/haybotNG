@@ -289,25 +289,31 @@ function M:getFieldStatus(field)
         return false, 0
     end
 
-    -- create small region to for scythe
+    -- create small region to for crop and scythe
     w, h = 400, 300
     x = field.x - w
     y = field.y - h
     r = Region(x, y, w + 100, h + 100)
     --
-    if Image:R(r):exists(Pattern('btn/switch.png'):targetOffset(self.crop.offset_x, self.crop.offset_y), 1) then
+    if Image:R(r):exists(Pattern('farming/holder.png'), 1)  then
         Console:show("Field is empty")
-        -- save data target to avoid mix whit switchSlides images
-        local btn_switch = Image:getData('target')
 
         -- set slide page for crop
         if self.current_slide ~= self.crop.slide then
+
             botl.switchSlides(self.crop.slide)
             self.current_slide = self.crop.slide
         end
+        local result = {
+            x = field.x + self.crop.offset_x,
+            y = field.y + self.crop.offset_y,
+            obj = Location(field.x + self.crop.offset_x, field.y + self.crop.offset_y),
+        }
+        debug_r(result.obj)
 
-        return btn_switch, 1
+        return result , 1
     end
+
 
     -- Ready to harvest
     if Image:R(r):exists(Pattern('farming/scythe.png'):mask():similar(0.8), 0) then

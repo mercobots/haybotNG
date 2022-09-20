@@ -59,11 +59,11 @@ function M:start()
     local grid5 = { { -250, -300 }, { -370, -230 }, { -227, -200 }, { -430, -125 }, { -310, -125 }, }
 
     GV.PRODUCTS = {
-        { id = "wheat", title = "Wheat", type = 'crop', tab = 'silo', cat = 'field', offset_x = 210, offset_y = -160, slide = 1, produce_time = 60 * 2 },
-        { id = "corn", title = "Corn", type = 'crop', tab = 'silo', cat = 'field', offset_x = 128, offset_y = -84, slide = 1, produce_time = 60 * 5 },
-        { id = "carrot", title = "Carrot", type = 'crop', tab = 'silo', cat = 'field', offset_x = 0, offset_y = -84, slide = 1, produce_time = 60 * 10 },
-        { id = "soybean", title = "Soybean", type = 'crop', tab = 'silo', cat = 'field', offset_x = 196, offset_y = -250, slide = 1, produce_time = 60 * 20 },
-        { id = "sugarcane", title = "Sugarcane", type = 'crop', tab = 'silo', cat = 'field', offset_x = 84, offset_y = -128, slide = 1, produce_time = 60 * 30 },
+        { id = "wheat", title = "Wheat", type = 'crop', tab = 'silo', cat = 'field', offset_x = -98, offset_y = -87, slide = 1, produce_time = 60 * 2 },
+        { id = "corn", title = "Corn", type = 'crop', tab = 'silo', cat = 'field', offset_x = -168, offset_y = -27, slide = 1, produce_time = 60 * 5 },
+        { id = "carrot", title = "Carrot", type = 'crop', tab = 'silo', cat = 'field', offset_x = -313, offset_y = -14, slide = 1, produce_time = 60 * 10 },
+        { id = "soybean", title = "Soybean", type = 'crop', tab = 'silo', cat = 'field', offset_x = -117, offset_y = -195, slide = 1, produce_time = 60 * 20 },
+        { id = "sugarcane", title = "Sugarcane", type = 'crop', tab = 'silo', cat = 'field', offset_x = -228, offset_y = -128, slide = 1, produce_time = 60 * 30 },
         --
         { id = "bread", title = "Bread", type = 'product', tab = 'barn', cat = 'bakery', resources = { { 'wheat', 3 } }, offset_x = grid5[3][1], offset_y = grid5[3][2], slide = 1, produce_time = 60 * 5 },
         { id = "corn_bread", title = "Corn Bread", type = 'product', tab = 'barn', cat = 'bakery', resources = { { 'corn', 2 }, { 'egg', 2 } }, offset_x = grid5[5][1], offset_y = grid5[5][2], slide = 1, produce_time = 60 * 30 },
@@ -111,7 +111,7 @@ function M:start()
                 machine[i].id = table.concat({ machine[i].id, "_", m_i })
                 machine[i].cat = table.concat({ machine[i].cat, "_", m_i })
                 if m_i > 1 then
-                    GV.PRODUCTS[#GV.PRODUCTS + 1] = luall.clone_table( machine[i])
+                    GV.PRODUCTS[#GV.PRODUCTS + 1] = luall.clone_table(machine[i])
                 end
             end
 
