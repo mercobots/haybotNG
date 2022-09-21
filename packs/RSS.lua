@@ -13,7 +13,7 @@ local M = {}
 local anchor_offset = { 210, 65 }
 -- create only 1, memory saver
 local btn_tab = {
-    bar = "btn/barn.png",
+    barn = "btn/barn.png",
     silo = "btn/silo.png",
 }
 
@@ -69,9 +69,9 @@ function M:start()
 end
 
 -------------------------------------------------------------------------------
-function M:open()
-
-    if Image:R(GV.REG.rss_holder):exists('rss/holder.png', 0) then
+function M:open(timeout)
+    timeout = timeout or 0
+    if Image:R(GV.REG.rss_holder):exists('rss/holder.png', timeout) then
         Console:show('RSS open')
         return true
     else
@@ -333,14 +333,14 @@ end
 
 -- ========================================
 function M:createAd()
-   -- print("Create AD")
+    -- print("Create AD")
     if self.AD:isRunning() then
         print(" AD running")
         Console:show('RSS AD - ' .. self.AD:timeLeft())
         return true
     end
     --print(" shop Open")
-    if self:open() then
+    if self:open(1) then
 
         repeat
             --print("Get Slots")
@@ -349,20 +349,21 @@ function M:createAd()
                 click(full[i])
                 --
 
-                if Color:exists(GV.OBJ.rss_advertised, 3) then
+                if Image:R(GV.REG.rss_edit_AD):exists("rss/ad/advertised.png", 3) then
                     Console:show('Ad advertised')
                     botl.btn_close("click")
-                elseif Color:exists(GV.OBJ.rss_ad_sell_edit, 0) then
-                    self.AD:start()
+                elseif Image:R(GV.REG.rss_edit_AD):exists("rss/ad/running.png", 0) then
+                    self.AD:start() -- start timer in case is not running
                     botl.btn_close("click")
                     return true
-                else
-                    click(Color:getTarget(GV.OBJ.rss_ad_sell_edit))
-                    if Color:existsClick(GV.OBJ.rss_btn_create_ad_edit) then
-                        Console:show('Ad Created')
-                        self.AD:reset()
-                        return true
-                    end
+                elseif Image:R(GV.REG.rss_edit_AD):exists(Pattern("rss/ad/paper.png"):targetOffset(0, 105), 0) then
+                    local paper = Image:getData()
+                    click(paper.center.obj)
+                    wait(0.5)
+                    click(paper.target.obj)
+                    Console:show('Ad Created')
+                    self.AD:reset()
+                    return true
                 end
             end
         until not self:movePage("right")

@@ -17,6 +17,7 @@ function M:start()
         rss_sold_1 = Region(253, 414, 789, 37),
         rss_sold_2 = Region(261, 574, 771, 53),
         rss_sell = Region(321, 207, 361, 443),
+        rss_edit_AD = Region(492, 198, 291, 433),
         product_resources = Region(355, 275, 576, 312),
     }
     --
