@@ -76,8 +76,6 @@ function M:generalSettings(only_data)
     local form = Form:new("General Settings")
     form:addForm {
         ele = {
-            { type = 'text', label = '\n# System #' },
-            { type = 'checkbox', id = 'DEBUG_MODE', label = '\tDebug', value = false },
             --
             { type = 'text', label = '\n# Farm #' },
             { type = 'selectbox_index', id = 'FARM_FIELD_SPEED', label = '\tPlant/Harvest\tspeed', value = 25, options = move_speed, new_row = false },
@@ -85,7 +83,14 @@ function M:generalSettings(only_data)
             --
             { type = 'text', label = '\n# RSS #' },
             { type = 'input_number', id = 'RSS_SLOTS', label = '\tRSS Slots', value = 10 },
-            { type = 'selectbox_index', id = 'RSS_AD_INDEX', label = '\tRSS AD on ', options = {"1º Sale", "Last Sale"}, value = 1 },
+            { type = 'selectbox_index', id = 'RSS_AD_INDEX', label = '\tRSS AD on ', options = { "1º Sale", "Last Sale" }, value = 1 },
+            { type = 'text', label = '\n# System #' },
+            { type = 'checkbox', id = 'NETWORK_DOWN', label = '\tReconnect on network down?', value = true, new_row = false },
+            { type = 'input_number', id = 'NETWORK_DOWN_ATTEMPTS', label = '\tAttempts', value = 3,new_row = false },
+            { type = 'input_number', id = 'NETWORK_DOWN_ATTEMPTS_DELAY', label = '\tDelay between attempts (Sec)', value = 60 },
+            --
+            { type = 'checkbox', id = 'DEBUG_MODE', label = '\tDebug', value = false, new_row = false },
+            { type = 'text', label = '\t (Show all Regions/Match\'s/Click Locations)' },
 
         }
     }

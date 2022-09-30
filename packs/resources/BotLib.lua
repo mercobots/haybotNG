@@ -13,6 +13,7 @@ local holder_list = {
     Image:generateBulkList('holder/1/', 1),
     Image:generateBulkList('holder/2/', 1),
 }
+local _temp_img = GV.DEV.ID .. "_temp.png"
 
 local btn_close_list = Image:generateBulkList('btn/close/', 2)
 --local random_forms = { "btn_settings", "btn_vouchers", "btn_boosters", "btn_letter" }
@@ -183,7 +184,7 @@ function M.openRandomForm()
                 return true
             end
             old_close_btn = new_close_btn
-            if luall.is_timeout(timer:check(),30) then
+            if luall.is_timeout(timer:check(), 30) then
                 break
             end
         end
@@ -247,11 +248,11 @@ function M.align(timeout, align_spot)
         local v = luall.get_values(SS)
         local SS_R = Region(v.x - 100, v.y - 100, v.w + 200, v.h + 200)
         --debug_r(SS_R)
-        setImagePath(GV.SETTINGS.DIR_TEMP)
         --
         while true do
+            setImagePath(GV.SETTINGS.DIR_TEMP)
             swipe(s_l_1, s_l_2)
-            SS:save('_align.png')
+            SS:save(_temp_img)
             --click(GV._LOC.safe_click)
             M.zoomOut()
             --click(GV._LOC.safe_click)
@@ -259,10 +260,14 @@ function M.align(timeout, align_spot)
             click(GV.LOC.safe_click)
             swipe(s_l_1, s_l_2)
             click(GV.LOC.safe_click)
+            --
+            setImagePath(GV.SETTINGS.DIR_IMAGES)
             if not M.isHomeScreen() then
                 M.clearScreen()
             end
-            if Image:R(SS_R):exists(Pattern('_align.png'):similar(0.8), 0) then
+            setImagePath(GV.SETTINGS.DIR_TEMP)
+            --
+            if Image:R(SS_R):exists(Pattern(_temp_img):similar(0.8), 0) then
                 break
             end
         end

@@ -179,6 +179,7 @@ end
 -------------------------------------------------------------------------------
 function M:getAllowedLanes()
     local lanes, free_lanes, occupied_lanes = self:getLanesStatus()
+    -- print({lanes, free_lanes, occupied_lanes})
     if #free_lanes < 0 then
         return false
     end
@@ -193,7 +194,7 @@ function M:getAllowedLanes()
         end
         allowed_lanes[#allowed_lanes + 1] = free_lanes[i]
     end
-
+    -- print({allowed_lanes, allowed_lanes[1], allowed_lanes[#allowed_lanes]})
     return allowed_lanes, allowed_lanes[1], allowed_lanes[#allowed_lanes]
 end
 
@@ -295,7 +296,7 @@ function M:getFieldStatus(field)
     y = field.y - h
     r = Region(x, y, w + 100, h + 100)
     --
-    if Image:R(r):exists(Pattern('farming/holder.png'), 1)  then
+    if Image:R(r):exists(Pattern('farming/holder.png'), 1) then
         Console:show("Field is empty")
 
         -- set slide page for crop
@@ -311,7 +312,7 @@ function M:getFieldStatus(field)
         }
         debug_r(result.obj)
 
-        return result , 1
+        return result, 1
     end
 
 

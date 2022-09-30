@@ -335,7 +335,7 @@ end
 function M:createAd()
     -- print("Create AD")
     if self.AD:isRunning() then
-        print(" AD running")
+        --print(" AD running")
         Console:show('RSS AD - ' .. self.AD:timeLeft())
         return true
     end
