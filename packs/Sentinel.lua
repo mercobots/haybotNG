@@ -23,7 +23,7 @@ function M:networkReset(timeout, align_spot)
 end
 
 -------------------------------------------------------------------------------
-function M:networkDown(timeout, align_spot)
+function M:networkDown(timeout)
     if not GV.CFG.general.NETWORK_DOWN then
         return false
     end
@@ -49,12 +49,11 @@ function M:networkDown(timeout, align_spot)
 
         -- anchor
         if botl.isHomeScreen(60) then
-            botl.align(false, align_spot)
             self.network_attempts = 0
             return true
         end
         local clock = luall.get_clock(GV.CFG.general.NETWORK_DOWN_ATTEMPTS_DELAY)
-        Console:show(table.concat({  self.network_attempts + 1,"º Attempt in ", clock }))
+        Console:show(table.concat({ self.network_attempts + 1, "º Attempt in ", clock }))
         wait(GV.CFG.general.NETWORK_DOWN_ATTEMPTS_DELAY)
     end
 end
@@ -65,9 +64,15 @@ function M:screenIsClean(timeout)
     if botl.isHomeScreen(timeout) then
         return true
     end
+    -- scriptExit("screenIsClean")
     botl.clearScreen(timeout)
-    botl.align(timeout)
+    -- botl.align(timeout)
     return false
+end
+
+-------------------------------------------------------------------------------
+function M:lostConnection(timeout)
+    return self:networkDown(timeout) or self:networkReset(timeout)
 end
 
 -------------------------------------------------------------------------------
@@ -75,7 +80,6 @@ function M:checkAll()
     self:networkDown()
     self:networkReset()
     self:screenIsClean()
-    botl.align()
 end
 
 return M

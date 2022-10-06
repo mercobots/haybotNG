@@ -51,7 +51,7 @@ function M:start()
         -- get next crops in queue
         self.crop = botl.getGVProductBy(crop_id, "id")
 
-        botl.align()
+       -- botl.align()
 
         -- check for free lanes
         local allowed_lanes, start_lane, end_lane = self:getAllowedLanes()

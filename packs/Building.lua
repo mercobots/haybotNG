@@ -93,8 +93,10 @@ function M:collect(building)
         -- update last product produced stock
         if #self.line_production > 0 then
             local product = botl.getGVProductBy(self.line_production[1], "id")
-            product.stock = product.stock + 1
-            self.line_production[1] = nil
+            if product then
+                product.stock = product.stock + 1
+                self.line_production[1] = nil
+            end
         end
 
         Console:show("Collect Products")

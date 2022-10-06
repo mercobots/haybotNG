@@ -11,6 +11,7 @@ function M:start()
         align = Region(350, 492, 180, 308),
         safe_area = Region(93, 91, 1066, 564),
         btn_close = Region(760, 0, 520, 358),
+        --btn_register = Region(0, 655, 145, 145),
         rss_btn_close = Region(874, 94, 175, 121),
         rss_holder = Region(399, 209, 504, 75),
         rss_form = Region(251, 258, 785, 387),

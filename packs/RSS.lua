@@ -6,6 +6,7 @@ local GV = require('GlobalVars')
 local Console = require('Console')
 local OTimer = require('OTimer')
 local Queue = require("Queue")
+local Sentinel = require("Sentinel")
 
 -------------------------------------------------------------------------------
 local M = {}
@@ -29,38 +30,20 @@ end
 
 -------------------------------------------------------------------------------
 function M:start()
-
-    if Queue:totalProducts("rss") < 1 then
-        Console:show("No Products to sell")
+    -- reset rss page
+    if not self:canSell() then
         return false
     end
-
-    if not self.first_run then
-        if not self:enqueuedProductHasStock() then
-            return false
-        elseif self.AD:isRunning() and not self:hasSell() then
-            return false
-        end
-    end
-
-    --
-    self.current_page = 1
-
     --
     if not self:open() then
         return false
     end
     --
     self.first_run = false
+    self.current_page = 1
 
     --
-    repeat
-        local empty, full, sold = self:getBoxes()
-        self:collectSold(sold)
-        if not self:sellController(empty) then
-            break
-        end
-    until not self:movePage()
+    self:boxController()
 
     -- in case any product has put in sell and AD is not running so
     -- also used for GV.CFG.general.RSS_AD_INDEX == 2
@@ -68,25 +51,65 @@ function M:start()
 end
 
 -------------------------------------------------------------------------------
-function M:open(timeout)
-    timeout = timeout or 0
-    if Image:R(GV.REG.rss_holder):exists('rss/holder.png', timeout) then
-        Console:show('RSS open')
+function M:canSell()
+    if Queue:totalProducts("rss") < 1 then
+        Console:show("No Products to sell")
+        return false
+    end
+    --
+    if self.first_run then
         return true
-    else
-        local holder = botl.getHolder(0, anchor_offset)
-
-        if holder then
-            click(holder.target.obj)
-            Console:show('Awaiting for RSS')
-            if Image:R(GV.REG.rss_holder):exists('rss/holder.png') then
-                return true
-            end
-        end
+    end
+    --
+    if self:enqueuedProductHasStock() then
+        return true
+    end
+    --
+    if self.AD:isRunning() and not self:hasSell() then
+        return true
     end
 
+    return false
+end
+
+-------------------------------------------------------------------------------
+function M:open(timeout)
+    timeout = timeout or 0
+    for try = 1, 2 do
+        if Image:R(GV.REG.rss_holder):exists('rss/holder.png', timeout) then
+            Console:show('RSS open')
+            return true
+        end
+        if try == 1 then
+            local holder = botl.getHolder(0, anchor_offset)
+            click(holder.target.obj)
+            Console:show('Awaiting for RSS')
+            timeout = 3
+        end
+    end
     Console:show('Fail opening RSS')
     return false
+end
+
+-------------------------------------------------------------------------------
+function M:boxController()
+    local empty, full, sold
+    --
+    while not Sentinel:lostConnection(0) do
+        repeat
+            empty, full, sold = self:getBoxes()
+            self:collectSold(sold)
+
+            if not self:sellController(empty) then
+                botl.btn_close("click", 0, GV.REG.rss_btn_close)
+                return false
+            end
+        until #empty < 1
+        --
+        if not self:movePage() then
+            break
+        end
+    end
 end
 
 -------------------------------------------------------------------------------
@@ -133,8 +156,8 @@ end
 -------------------------------------------------------------------------------
 function M:collectSold(sold)
     if #sold > 0 then
+        Console:show(table.concat({ "Collect - ", #sold }))
         for i = 1, #sold do
-            Console:show('Collect box - ' .. i)
             click(sold[i])
         end
     end
@@ -143,45 +166,66 @@ end
 -------------------------------------------------------------------------------
 function M:sellController(empty)
     local rectify_stock = true
+    local last_product_id = ""
+    local product_id = false
+    local result = true
+    ---
     for box = 1, #empty do
         --
         -- get next enqueue product
-        local product_id = Queue:getNextProduct("rss")
+        product_id = Queue:getNextProduct("rss")
         if not product_id then
-            Console:show("No products for rss")
-            return false
+            Console:show("RSS - No more products")
+            result = false
+            break
         end
+
+        -- get product data
         local product = botl.getGVProductBy(product_id, "id")
-        Console:show("Sell Wheat")
+
+        -- only show 1 time per new product
+        if last_product_id ~= product_id then
+            last_product_id = product_id
+            rectify_stock = true
+            Console:show(table.concat({ "sell", product.title }))
+        end
+
         --
         click(empty[box])
 
         if not self:selectTab(product) then
-            return false
+            result = false
+            break
         end
 
         -- check if product is still visible to select
         local product_match = self:selectProduct(product)
         if not product_match then
-            return false
+            result = false
+            break
         end
 
         -- force ocr if rectify is active
         product_match = rectify_stock and product_match or rectify_stock
+
+        -- so if product ha sno stock and there is only 1 product enqueue (self.product) then
+        -- stop
+
         if self:productHasStock(product, product_match) then
             rectify_stock = false
             self:sell(product)
-
-            -- update product stock after sell
-            product.stock = product.stock >= 20 and product.stock - 10 or math.floor(product.stock * 0.5)
-            Console:show(product.title .. ' - ' .. product.stock)
         else
-            Queue:removeProduct(product.id, "rss")
             botl.btn_close("click", 0, GV.REG.rss_btn_close)
-            return false
+            Queue:removeProduct(product_id, "rss")
         end
+
     end
-    return true
+    --
+    if not result and product_id then
+        Queue:removeProduct(product_id, "rss")
+    end
+    --
+    return result
 end
 
 -------------------------------------------------------------------------------
@@ -212,7 +256,9 @@ function M:sell(product)
     --
     Console:show('Confirm sell')
     click(GV.OBJ.rss_btn_sell.center)
-    return true
+
+    -- update product stock after sell
+    product.stock = product.stock >= 20 and product.stock - 10 or math.floor(product.stock * 0.5)
 end
 
 -------------------------------------------------------------------------------
@@ -248,8 +294,6 @@ function M:selectTab(product)
             self.rss_tab = product.tab
             return true
         end
-        --if Color:existsClick(GV.OBJ.rss_tab[tab], 3) then
-        --end
     end
     Console:show('Can\'t select tab')
     return false
@@ -260,10 +304,17 @@ function M:selectProduct(product)
     -- for identical machines, since product.id == product_x.png
     local img = product.img and product.img or product.id
     local pattern = Pattern('rss/' .. img .. '.png'):similar(0.8)
+    local timeout = 3
     --
     Console:show('Select ' .. product.title)
-    if Image:R(GV.REG.rss_sell):existsClick(pattern) then
-        return Image:getData()
+    for tries = 1, 3 do
+        if Image:R(GV.REG.rss_sell):existsClick(pattern, timeout) then
+            return Image:getData()
+        end
+        if tries < 3 then
+            dragDrop(Location(495, 620), Location(485, 264))
+        end
+        timeout = 1
     end
     Console:show('Select ' .. product.title .. ' - FAIL')
     return false
@@ -275,14 +326,14 @@ function M:productHasStock(product, product_match)
     if product_match then
         product.stock = self:getProductQuantity(product_match)
     end
-    Console:show(product.title .. ' - ' .. product.stock)
+    --Console:show(product.title .. ' - ' .. product.stock)
 
     if product.stock > (product.keep + product.reserved) then
         return true
     end
 
     -- Console:show('[Stock Keep] ' .. product.stock .. '/' .. product.stock_keep)
-    Console:show(table.concat({ "[Stock Keep]", product.stock, "/", product.keep, "(+", product.reserved, ")" }))
+    -- Console:show(table.concat({ "[Stock Keep]", product.stock, "/", product.keep, "(+", product.reserved, ")" }))
     return false
 end
 

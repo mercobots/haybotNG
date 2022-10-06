@@ -48,6 +48,7 @@ end
 function M.isHomeScreen(t)
     t = t or 0
     return Color:exists(GV.OBJ.btn_register, 0)
+    --return Image:R(GV.REG.btn_register):exists("btn/register.png")
 end
 
 -- ----------------------------------
@@ -84,13 +85,18 @@ function M.getHolder(t, to, list, r)
     to = to or { 0, 0 }
     list = list or 1
     r = r or GV.REG.align
-    if Image:R(r):bulkSearch(holder_list[list], t, 0.75, to) then
-        local anchor = Image:getData()
-        local screen = Region(0, 0, GV.SETTINGS.WIDTH, GV.SETTINGS.HEIGHT)
-        if luall.location_in_region(anchor.target.obj, screen) then
-            return anchor
-        else
-            swipe(GV.SCREEN.loc.center, GV.SCREEN.loc.bottom_right)
+    for try = 1, 2 do
+        if Image:R(r):bulkSearch(holder_list[list], t, 0.75, to) then
+            local anchor = Image:getData()
+            local screen = Region(0, 0, GV.SETTINGS.WIDTH, GV.SETTINGS.HEIGHT)
+            if luall.location_in_region(anchor.target.obj, screen) then
+                return anchor
+            end
+        end
+        --
+        if try == 1 then
+            print("align")
+            M.align()
         end
     end
     return false
@@ -240,46 +246,44 @@ function M.align(timeout, align_spot)
     local timer = Timer()
     --
     --
-    while not M.getHolder(0, false, align_spot) do
-        Console:show('Align')
-        local s_l_1 = Location(171, 144)
-        local s_l_2 = Location(9999, 9999)
-        local SS = Region(1050, 504, 151, 215)
-        local v = luall.get_values(SS)
-        local SS_R = Region(v.x - 100, v.y - 100, v.w + 200, v.h + 200)
-        --debug_r(SS_R)
+    Console:show('Align')
+    local s_l_1 = Location(171, 144)
+    local s_l_2 = Location(9999, 9999)
+    local SS = Region(1050, 504, 151, 215)
+    local v = luall.get_values(SS)
+    local SS_R = Region(v.x - 100, v.y - 100, v.w + 200, v.h + 200)
+    --debug_r(SS_R)
+    --
+    while true do
+        setImagePath(GV.SETTINGS.DIR_TEMP)
+        swipe(s_l_1, s_l_2)
+        SS:save(_temp_img)
+        --click(GV._LOC.safe_click)
+        M.zoomOut()
+        --click(GV._LOC.safe_click)
+        -- M.zoomOut()
+        click(GV.LOC.safe_click)
+        swipe(s_l_1, s_l_2)
+        click(GV.LOC.safe_click)
         --
-        while true do
-            setImagePath(GV.SETTINGS.DIR_TEMP)
-            swipe(s_l_1, s_l_2)
-            SS:save(_temp_img)
-            --click(GV._LOC.safe_click)
-            M.zoomOut()
-            --click(GV._LOC.safe_click)
-            -- M.zoomOut()
-            click(GV.LOC.safe_click)
-            swipe(s_l_1, s_l_2)
-            click(GV.LOC.safe_click)
-            --
-            setImagePath(GV.SETTINGS.DIR_IMAGES)
-            if not M.isHomeScreen() then
-                M.clearScreen()
-            end
-            setImagePath(GV.SETTINGS.DIR_TEMP)
-            --
-            if Image:R(SS_R):exists(Pattern(_temp_img):similar(0.8), 0) then
-                break
-            end
-        end
         setImagePath(GV.SETTINGS.DIR_IMAGES)
+        if not M.isHomeScreen() then
+            M.clearScreen()
+        end
+        setImagePath(GV.SETTINGS.DIR_TEMP)
         --
-        dragDrop(Location(210, 490), Location(210, 190))
-        --
+        if Image:R(SS_R):exists(Pattern(_temp_img):similar(0.8), 0) then
+            break
+        end
+
         if luall.is_timeout(timer:check(), timeout) then
-            return false
+            break
         end
     end
-
+    setImagePath(GV.SETTINGS.DIR_IMAGES)
+    --
+    dragDrop(Location(210, 490), Location(210, 190))
+    --
     --
 end
 
