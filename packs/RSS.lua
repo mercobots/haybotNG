@@ -62,10 +62,9 @@ function M:start()
         end
     until not self:movePage()
 
-    -- active ad on last sell
-    if GV.CFG.general.RSS_AD_INDEX == 2 then
-        self:createAd()
-    end
+    -- in case any product has put in sell and AD is not running so
+    -- also used for GV.CFG.general.RSS_AD_INDEX == 2
+    self:createAd()
 end
 
 -------------------------------------------------------------------------------
@@ -192,7 +191,7 @@ function M:sell(product)
     if product.price == 2 then
         Console:show('Sell Max')
         click(GV.OBJ.rss_sell_max.center)
-    elseif product.price == 2 then
+    elseif product.price == 3 then
         Console:show('Sell Normal')
     elseif product.price == 4 then
         Console:show('Sell Min')
@@ -258,9 +257,12 @@ end
 
 -------------------------------------------------------------------------------
 function M:selectProduct(product)
-    local img = Pattern('rss/' .. product.id .. '.png'):similar(0.8)
+    -- for identical machines, since product.id == product_x.png
+    local img = product.img and product.img or product.id
+    local pattern = Pattern('rss/' .. img .. '.png'):similar(0.8)
+    --
     Console:show('Select ' .. product.title)
-    if Image:R(GV.REG.rss_sell):existsClick(img) then
+    if Image:R(GV.REG.rss_sell):existsClick(pattern) then
         return Image:getData()
     end
     Console:show('Select ' .. product.title .. ' - FAIL')
@@ -275,12 +277,12 @@ function M:productHasStock(product, product_match)
     end
     Console:show(product.title .. ' - ' .. product.stock)
 
-    if product.stock > (product.keep + product.require) then
+    if product.stock > (product.keep + product.reserved) then
         return true
     end
 
     -- Console:show('[Stock Keep] ' .. product.stock .. '/' .. product.stock_keep)
-    Console:show(table.concat({ "[Stock Keep]", product.stock, "/", product.keep, "(+", product.require, ")" }))
+    Console:show(table.concat({ "[Stock Keep]", product.stock, "/", product.keep, "(+", product.reserved, ")" }))
     return false
 end
 
@@ -291,9 +293,11 @@ function M:enqueuedProductHasStock()
         local product_id = data[i]
         local product = botl.getGVProductBy(product_id, "id")
         if self:productHasStock(product) then
+            Console:show(product.title .. " has stock ")
             return true
         end
     end
+    Console:show("No stock available")
     return false
 end
 

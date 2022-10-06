@@ -40,7 +40,8 @@ function M:networkDown(timeout, align_spot)
         end
         --
         Console:show("Connection Down")
-        if not Image:R(GV.REG.safe_area):existsClick("btn/try_again.png") then
+        if not Image:R(GV.REG.safe_area):existsClick("btn/try_again.png") and
+                not Image:R(GV.REG.safe_area):existsClick("btn/reload_game.png") then
             return false
         end
         --

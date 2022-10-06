@@ -86,7 +86,7 @@ function M:generalSettings(only_data)
             { type = 'selectbox_index', id = 'RSS_AD_INDEX', label = '\tRSS AD on ', options = { "1º Sale", "Last Sale" }, value = 1 },
             { type = 'text', label = '\n# System #' },
             { type = 'checkbox', id = 'NETWORK_DOWN', label = '\tReconnect on network down?', value = true, new_row = false },
-            { type = 'input_number', id = 'NETWORK_DOWN_ATTEMPTS', label = '\tAttempts', value = 3,new_row = false },
+            { type = 'input_number', id = 'NETWORK_DOWN_ATTEMPTS', label = '\tAttempts', value = 3, new_row = false },
             { type = 'input_number', id = 'NETWORK_DOWN_ATTEMPTS_DELAY', label = '\tDelay between attempts (Sec)', value = 60 },
             --
             { type = 'checkbox', id = 'DEBUG_MODE', label = '\tDebug', value = false, new_row = false },
@@ -112,7 +112,9 @@ function M:productsSettings(only_data)
             { type = 'text', label = '\n# Crops #' },
             { type = 'checkbox', id = 'PRO_WHEAT_ACTIVE', label = '\tWheat', value = false, new_row = false },
             { type = 'selectbox_index', id = 'PRO_WHEAT_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = 'PRO_WHEAT_KEEP', label = '\tKeep\t', value = 10 },
+            { type = 'input_number', id = 'PRO_WHEAT_KEEP', label = '\tKeep\t', value = 10 , new_row = false},
+            { type = 'checkbox', id = 'PRO_WHEAT_CONSOLE', label = '\tConsole', value = false },
+
             --
             { type = 'checkbox', id = 'PRO_CORN_ACTIVE', label = '\tCorn', value = false, new_row = false },
             { type = 'selectbox_index', id = 'PRO_CORN_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
@@ -143,7 +145,8 @@ function M:productsSettings(only_data)
             --
             { type = 'checkbox', id = 'PRO_BREAD_ACTIVE', label = '\tBread', value = false, new_row = false },
             { type = 'selectbox_index', id = 'PRO_BREAD_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = 'PRO_BREAD_KEEP', label = '\tKeep\t', value = 10 },
+            { type = 'input_number', id = 'PRO_BREAD_KEEP', label = '\tKeep\t', value = 10,new_row = false },
+            { type = 'checkbox', id = 'PRO_BREAD_CONSOLE', label = '\tConsole', value = false },
             ----
             { type = 'checkbox', id = 'PRO_CORN_BREAD_ACTIVE', label = '\tCorn Bread', value = false, new_row = false },
             { type = 'selectbox_index', id = 'PRO_CORN_BREAD_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
@@ -158,10 +161,19 @@ function M:productsSettings(only_data)
             { type = 'checkbox', id = 'PRO_CHICKEN_FEED_1_ACTIVE', label = '\tChicken Feed', value = false, new_row = false },
             { type = 'selectbox_index', id = 'PRO_CHICKEN_FEED_1_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
             { type = 'input_number', id = 'PRO_CHICKEN_FEED_1_KEEP', label = '\tKeep\t', value = 10 },
+            --
+            { type = 'checkbox', id = 'PRO_WHEAT_BUNDLE_1_ACTIVE', label = '\tWheat Bundle', value = false, new_row = false },
+            { type = 'selectbox_index', id = 'PRO_WHEAT_BUNDLE_1_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
+            { type = 'input_number', id = 'PRO_WHEAT_BUNDLE_1_KEEP', label = '\tKeep\t', value = 10 },
+            --
             { type = 'text', label = '\n2º - Mill -' },
             { type = 'checkbox', id = 'PRO_CHICKEN_FEED_2_ACTIVE', label = '\tChicken Feed', value = false, new_row = false },
             { type = 'selectbox_index', id = 'PRO_CHICKEN_FEED_2_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
             { type = 'input_number', id = 'PRO_CHICKEN_FEED_2_KEEP', label = '\tKeep\t', value = 10 },
+            --
+            { type = 'checkbox', id = 'PRO_WHEAT_BUNDLE_2_ACTIVE', label = '\tWheat Bundle', value = false, new_row = false },
+            { type = 'selectbox_index', id = 'PRO_WHEAT_BUNDLE_2_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
+            { type = 'input_number', id = 'PRO_WHEAT_BUNDLE_2_KEEP', label = '\tKeep\t', value = 10 },
 
             ----
             { type = 'text', value = '\n# POPCORN POT #', },

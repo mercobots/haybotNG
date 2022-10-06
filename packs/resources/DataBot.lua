@@ -76,6 +76,7 @@ function M:start()
         { id = "pig_feed", title = "Pig Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { { 'carrot', 2 }, { 'soybean', 1 } }, offset_x = grid5[1][1], offset_y = grid5[1][2], slide = 1, produce_time = 60 * 20 },
         { id = "sheep_feed", title = "Sheep Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { { 'wheat', 3 }, { 'soybean', 1 } }, offset_x = grid5[2][1], offset_y = grid5[2][2], slide = 1, produce_time = 60 * 30 },
         { id = "chicken_feed", title = "Chicken Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { { 'wheat', 2 }, { 'corn', 1 } }, offset_x = grid5[3][1], offset_y = grid5[3][2], slide = 1, produce_time = 60 * 5 },
+        { id = "wheat_bundle", title = "Wheat Bundle", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { { 'wheat', 75 } }, offset_x = grid5[3][1], offset_y = grid5[3][2], slide = 2, produce_time = (60 * 60) + 25 },
         --
         { id = "milk", title = "Milk", type = 'product', tab = 'barn', cat = 'cow', resources = { 'cow_feed' }, offset_x = grid5[5][1], offset_y = grid5[5][2], slide = 1, produce_time = 60 * 10 },
 
@@ -85,7 +86,7 @@ function M:start()
     for i = 1, #GV.PRODUCTS do
         GV.PRODUCTS[i].timer = false
         GV.PRODUCTS[i].stock = 0
-        GV.PRODUCTS[i].require = 0
+        GV.PRODUCTS[i].reserved = 0
         GV.PRODUCTS[i].keep = 0
         GV.PRODUCTS[i].price = 0
     end
@@ -109,6 +110,8 @@ function M:start()
 
         for m_i, machine in ipairs(machines) do
             for i = 1, #product_data do
+                -- only for duplicated machines, avoid (product_1.png)
+                machine[i].img = machine[i].id
                 machine[i].id = table.concat({ machine[i].id, "_", m_i })
                 machine[i].cat = table.concat({ machine[i].cat, "_", m_i })
                 if m_i > 1 then

@@ -147,7 +147,7 @@ end
 ---@return table,table,table @lanes free/occupied {boolean}, free lanes{numbers}, occupied_lanes{numbers}
 -------------------------------------------------------------------------------
 function M:getLanesStatus()
-    Console:show("Get lane status")
+    --Console:show("Get lane status")
     local lanes = {}
     local occupied_lanes = {}
     local free_lanes = {}
@@ -237,7 +237,7 @@ function M:getField(start_lane)
 
             -- clean screen
             botl.openRandomForm()
-            wait(0.5)
+            wait(1.5)
 
             -- 2º try
             click_confirm = botl.getHolder(0, offset)
@@ -262,7 +262,7 @@ function M:getField(start_lane)
         end
 
         botl.openRandomForm()
-
+        wait(1.5)
 
         --holder_timeout = 1
 

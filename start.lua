@@ -4,19 +4,45 @@ local Queue = require("Queue")
 local Menu = require("Menu")
 local Sentinel = require("Sentinel")
 local Image = require("ImageHelper")
+local Console = require("Console")
 --
 local Farming = require("Farming")
 local Building = require("Building")
 local RSS = require("RSS")
 
 --
-setButtonPosition(0, GV.SCREEN.h / 2)
+setButtonPosition(0, 200)
 
 -- load default data
 Data:start()
 
 -- Start UI Menu
 Menu:start()
+
+local function productsConsole()
+    local console_i = 0
+    for i = 1, #GV.PRODUCTS do
+        local product = GV.PRODUCTS[i]
+        local cfg_active = string.upper(table.concat({ "PRO_", product.id, "_ACTIVE" }))
+        local cfg_console = string.upper(table.concat({ "PRO_", product.id, "_CONSOLE" }))
+        if cfg_active and GV.CFG.products[cfg_console] then
+            Console:add(cfg_console)
+            Console[cfg_console]:setElements(1)
+            Console[cfg_console]:position(0, (GV.SETTINGS.HEIGHT * 0.30) + (40 * console_i))
+            Console[cfg_console]:size((GV.SETTINGS.WIDTH * 0.15), 40)
+            Console[cfg_console]:orientation('vertical')
+            Console[cfg_console]:background('blue_navy')
+            Console[cfg_console]:font(10, 'white')
+            Console[cfg_console].text = function()
+                return table.concat({ product.title, " S/", product.stock, " K/", product.keep, " R/", product.reserved })
+            end
+            Console[cfg_console]:build()
+            console_i = console_i + 1
+        end
+    end
+
+end
+
 
 -- Set Active products
 local function setDefaultProducts()
@@ -26,7 +52,6 @@ local function setDefaultProducts()
         local cfg_active = string.upper(table.concat({ "PRO_", product.id, "_ACTIVE" }))
         local cfg_price = string.upper(table.concat({ "PRO_", product.id, "_PRICE" }))
         local cfg_keep = string.upper(table.concat({ "PRO_", product.id, "_KEEP" }))
-
         -- == nil (Not Defined at Menu)
         if GV.CFG.products[cfg_active] ~= nil then
             product.keep = GV.CFG.products[cfg_keep]
@@ -44,7 +69,9 @@ local function setDefaultProducts()
         end
     end
 end
+--
 setDefaultProducts()
+productsConsole()
 
 -- Debug Options
 Image.highlight = GV.CFG.general.DEBUG_MODE
@@ -65,12 +92,13 @@ RSS:set()
 while true do
     Sentinel:checkAll()
     --
+    Farming:start()
+    --
     Bakery:start()
     PopcornPot:start()
     FeedMill_1:start()
     FeedMill_2:start()
     --
-    Farming:start()
     RSS:start()
     wait(0.1)
     setDefaultProducts()
