@@ -81,7 +81,7 @@ function M:open(timeout)
             return true
         end
         if try == 1 then
-            local holder = botl.getHolder(0, anchor_offset)
+            local holder = botl.getHolder(true, { offset = anchor_offset, timeout = 0 })
             click(holder.target.obj)
             Console:show('Awaiting for RSS')
             timeout = 3
@@ -370,7 +370,8 @@ end
 
 -------------------------------------------------------------------------------
 function M:hasSell(action)
-    local holder = botl.getHolder(0, { 215, 52 })
+    local holder = botl.getHolder(true, { offset = { 215, 52 }, timeout = 0 })
+
     if holder then
         local R = Region(holder.target.x - 50, holder.target.y - 50, 100, 100)
         --debug_r(R)

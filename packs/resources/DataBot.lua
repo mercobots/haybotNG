@@ -58,6 +58,7 @@ function M:start()
     --
     GV.FIELD_SIZE = 42
     --
+    local grid2 = { { -250, -300 }, { -370, -230 }, { -227, -200 }, { -430, -125 }, { -310, -125 }, }
     local grid5 = { { -250, -300 }, { -370, -230 }, { -227, -200 }, { -430, -125 }, { -310, -125 }, }
 
     GV.PRODUCTS = {
@@ -79,7 +80,11 @@ function M:start()
         { id = "chicken_feed", title = "Chicken Feed", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { { 'wheat', 2 }, { 'corn', 1 } }, offset_x = grid5[3][1], offset_y = grid5[3][2], slide = 1, produce_time = 60 * 5 },
         { id = "wheat_bundle", title = "Wheat Bundle", type = 'product', tab = 'barn', cat = 'feed_mill', resources = { { 'wheat', 75 } }, offset_x = grid5[3][1], offset_y = grid5[3][2], slide = 2, produce_time = (60 * 60) + 25 },
         --
-        { id = "milk", title = "Milk", type = 'product', tab = 'barn', cat = 'cow', resources = { 'cow_feed' }, offset_x = grid5[5][1], offset_y = grid5[5][2], slide = 1, produce_time = 60 * 10 },
+        { id = "honey", title = "Honey", type = 'product', tab = 'barn', cat = 'honey_extractor', resources = { { 'honeycomb', 2 } }, offset_x = grid2[1][1], offset_y = grid2[1][2], slide = 1, produce_time = 60 * 20 },
+        { id = "beeswax", title = "Beeswax", type = 'product', tab = 'barn', cat = 'honey_extractor', resources = { { 'honeycomb', 3 } }, offset_x = grid2[2][1], offset_y = grid2[2][2], slide = 1, produce_time = 60 * 45 },
+
+        -- { id = "milk", title = "Milk", type = 'product', tab = 'barn', cat = 'cow', resources = { 'cow_feed' }, offset_x = grid5[5][1], offset_y = grid5[5][2], slide = 1, produce_time = 60 * 10 },
+         { id = "honeycomb", title = "Honeycomb", type = 'product', tab = 'barn', cat = 'beehive_tree', resources = { }, offset_x = grid5[5][1], offset_y = grid5[5][2], slide = 1, produce_time = -1 },
 
     }
 

@@ -14,6 +14,7 @@ local GV = require('GlobalVars')
 local Console = require('Console')
 local Queue = require("Queue")
 local OTimer = require('OTimer')
+local Sentinel = require("Sentinel")
 
 -------------------------------------------------------------------------------
 ---[Public]
@@ -34,12 +35,28 @@ function M:new(id, title, left, bottom)
     _self.production_timer = OTimer:new()
     _self.line_production = {}
     _self.current_slide = 1
+    _self.product = false
+    _self.building = false
+    _self.building_anchor = false
     setmetatable(_self, M)
     return _self
 end
 
 -------------------------------------------------------------------------------
 function M:start()
+    if not self:getNextProduct() or
+            not self:getBuilding() or
+            not self:collect() or
+            not  self:produce()  then
+        return false
+    end
+
+    Queue:removeProduct(self.product.id)
+    botl.openRandomForm()
+
+end
+-------------------------------------------------------------------------------
+function M:getNextProduct()
     -- No products for this machine
     if #Queue:getData(self.id) < 1 then
         Console:show("No products for " .. self.title)
@@ -48,61 +65,16 @@ function M:start()
 
     -- still in production
     if self.production_timer:isRunning() then
-        local clock = self.production_timer:timeLeft()
-        Console:show(table.concat({ self.title, " in ", clock }))
+        Console:show(table.concat({ self.title, " in ", self.production_timer:timeLeft() }))
         return false
     end
 
     -- get next enqueue product
     local product_id = Queue:getNextProduct(self.id)
-    local product = botl.getGVProductBy(product_id, "id")
-
-    Console:show(table.concat({ self.title, " - ", product.title }))
-
-    -- get building location by layout config
-    local building = self:getBuilding()
-    if not building then
-        return false
-    end
-
-    -- collect products and return anchor production
-    local anchor = self:collect(building)
-    if not anchor then
-        botl.openRandomForm()
-        return false
-    end
-
-    -- start product production
-    self:produce(anchor, product)
-
-    Queue:removeProduct(product.id)
-    botl.openRandomForm()
-
-end
------
------------------------------------------------------------------------------
-function M:collect(building)
-    while true do
-        click(building.obj)
-
-        if Image:R(GV.REG.safe_area):exists("building/anchor.png", 0) then
-            Console:show(table.concat({ "Open ", self.title }))
-            return Image:getData('target')
-        end
-
-        -- update last product produced stock
-        if #self.line_production > 0 then
-            local product = botl.getGVProductBy(self.line_production[1], "id")
-            if product then
-                product.stock = product.stock + 1
-                self.line_production[1] = nil
-            end
-        end
-
-        Console:show("Collect Products")
-    end
-
-    return false
+    self.product = botl.getGVProductBy(product_id, "id")
+    Console:show(table.concat({ self.title, " - ", self.product.title }))
+    --
+    return true
 end
 
 -------------------------------------------------------------------------------
@@ -111,7 +83,7 @@ end
 ---@return boolean|table @
 -------------------------------------------------------------------------------
 function M:getBuilding()
-    local anchor = botl.getHolder(0, { 360, 107 })
+    local anchor = botl.getHolder(true, { offset = { 360, 107 } })
 
     if not anchor then
         Console:show("Anchor not found")
@@ -124,30 +96,65 @@ function M:getBuilding()
         return false
     end
 
-    return building
+    self.building = building
+    return true
 end
 
+-----------------------------------------------------------------------------
+function M:collect()
+    local timer = Timer()
+    while not Sentinel:lostConnection(0) do
+        click(self.building.obj)
+
+        if Image:R(GV.REG.safe_area):exists("building/anchor.png", 1) then
+            Console:show(table.concat({ "Open ", self.title }))
+            -- save anchor location , avoid to look it again later
+            self.building_anchor = Image:getData('target')
+            return true
+        end
+
+        -- update last product produced stock
+        if #self.line_production > 0 then
+            local product = botl.getGVProductBy(self.line_production[1], "id")
+            if product then
+                product.stock = product.stock + 1
+                self.line_production[1] = nil
+            end
+        end
+
+        Console:show("Collect Products")
+
+        if luall.is_timeout(timer:check(), 30) then
+            Console:show("Timeout while collecting")
+            break
+        end
+    end
+
+    return false
+end
+
+
 -------------------------------------------------------------------------------
-function M:produce(anchor, product)
+function M:produce()
     Console:show("Start production")
 
-    if self.current_slide ~= product.slide then
-        botl.switchSlides(product.slide)
+    if self.current_slide ~= self.product.slide then
+        botl.switchSlides(self.product.slide)
         -- reset current slide
         self.current_slide = 1
     end
 
     -- Set Slots region
     -- calculate product location
-    local product_location = Location(anchor.x + product.offset_x, anchor.y + product.offset_y)
-    local slot = Location(anchor.x - 128, anchor.y + 152)
-    local full_R = Region(anchor.x - 435, anchor.y, 635, 300)
+    local product_location = Location(self.building_anchor.x + self.product.offset_x, self.building_anchor.y + self.product.offset_y)
+    local slot = Location(self.building_anchor.x - 128, self.building_anchor.y + 152)
+    local full_R = Region(self.building_anchor.x - 435, self.building_anchor.y, 635, 300)
     local timer = Timer()
     local first_production = true
 
     --self:productResources("reset", product.resources)
 
-    while true do
+    while  not Sentinel:lostConnection(0) do
         -- avoid infinite loop
         if luall.is_timeout(timer:check(), 30) then
             Console:show("Production timeout")
@@ -166,7 +173,7 @@ function M:produce(anchor, product)
         -- no more resources
         if not botl.isHomeScreen(0) and botl.btn_close("exists") then
             -- enqueue missing resources
-            self:productResources("enqueue", product.resources)
+            self:productResources("enqueue", self.product.resources)
             botl.btn_close("click", 0)
             break
         end
@@ -174,16 +181,16 @@ function M:produce(anchor, product)
         -- check line production timeout is grater than product production timer
         -- update machine timeout
         if self.production_timer.timeout == 0 or
-                (self.production_timer.timeout > 0 and product.produce_time < self.production_timer.timeout) then
-            self.production_timer.timeout = product.produce_time
+                (self.production_timer.timeout > 0 and self.product.produce_time < self.production_timer.timeout) then
+            self.production_timer.timeout = self.product.produce_time
             self.production_timer:reset()
         end
 
-        self:productResources("updateStock", product.resources)
+        self:productResources("updateStock", self.product.resources)
 
         -- everything is fine
         -- update line production
-        self.line_production[#self.line_production + 1] = product.id
+        self.line_production[#self.line_production + 1] = self.product.id
         first_production = false
     end
 

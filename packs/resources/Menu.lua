@@ -118,11 +118,15 @@ function M:productsSettings(only_data)
             --
             { type = 'checkbox', id = 'PRO_CORN_ACTIVE', label = '\tCorn', value = false, new_row = false },
             { type = 'selectbox_index', id = 'PRO_CORN_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = 'PRO_CORN_KEEP', label = '\tKeep\t', value = 10 },
+            { type = 'input_number', id = 'PRO_CORN_KEEP', label = '\tKeep\t', value = 10 , new_row = false},
+            { type = 'checkbox', id = 'PRO_CORN_CONSOLE', label = '\tConsole', value = false },
+
             --
             { type = 'checkbox', id = 'PRO_CARROT_ACTIVE', label = '\tCarrot', value = false, new_row = false },
             { type = 'selectbox_index', id = 'PRO_CARROT_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = 'PRO_CARROT_KEEP', label = '\tKeep\t', value = 10 },
+            { type = 'input_number', id = 'PRO_CARROT_KEEP', label = '\tKeep\t', value = 10 , new_row = false},
+            { type = 'checkbox', id = 'PRO_CARROT_CONSOLE', label = '\tConsole', value = false },
+
             --
             --{ type = 'checkbox', id = '#', label = '\tCorn', value = false, new_row = false },
             --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
@@ -150,7 +154,9 @@ function M:productsSettings(only_data)
             ----
             { type = 'checkbox', id = 'PRO_CORN_BREAD_ACTIVE', label = '\tCorn Bread', value = false, new_row = false },
             { type = 'selectbox_index', id = 'PRO_CORN_BREAD_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = 'PRO_CORN_BREAD_KEEP', label = '\tKeep\t', value = 10 },
+            { type = 'input_number', id = 'PRO_CORN_BREAD_KEEP', label = '\tKeep\t', value = 10, new_row = false},
+            { type = 'checkbox', id = 'PRO_CORN_BREAD_CONSOLE', label = '\tConsole', value = false },
+
             ----
             --{ type = 'checkbox', id = '#', label = '\tCookie', value = false, new_row = false },
             --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
@@ -175,13 +181,22 @@ function M:productsSettings(only_data)
             { type = 'selectbox_index', id = 'PRO_WHEAT_BUNDLE_2_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
             { type = 'input_number', id = 'PRO_WHEAT_BUNDLE_2_KEEP', label = '\tKeep\t', value = 10 },
 
+
             ----
             { type = 'text', value = '\n# POPCORN POT #', },
             --
             { type = 'checkbox', id = 'PRO_POPCORN_ACTIVE', label = '\tPopcorn', value = false, new_row = false },
             { type = 'selectbox_index', id = 'PRO_POPCORN_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
-            { type = 'input_number', id = 'PRO_POPCORN_KEEP', label = '\tKeep\t', value = 10 },
+            { type = 'input_number', id = 'PRO_POPCORN_KEEP', label = '\tKeep\t', value = 10 , new_row = false},
+            { type = 'checkbox', id = 'PRO_POPCORN_CONSOLE', label = '\tConsole', value = false },
+
             ----
+            { type = 'text', label = '\n# HONEY EXTRACTOR #' },
+            --
+            { type = 'checkbox', id = 'PRO_HONEY_ACTIVE', label = '\tHoney', value = false, new_row = false },
+            { type = 'selectbox_index', id = 'PRO_HONEY_PRICE', label = '\tSell', value = 1, options = price, new_row = false },
+            { type = 'input_number', id = 'PRO_HONEY_KEEP', label = '\tKeep\t', value = 10,new_row = false },
+            { type = 'checkbox', id = 'PRO_HONEY_CONSOLE', label = '\tConsole', value = false },
             --{ type = 'text', id = '#', label = '\n# Dairy #' },
             --{ type = 'checkbox', id = '#', label = '\tCream', value = false, new_row = false },
             --{ type = 'selectbox_index', id = '#', label = '\tSell', value = 1, options = price, new_row = false },
@@ -262,6 +277,9 @@ function M:layoutSettings(only_data)
             { type = 'input_number', id = 'FEED_MILL_2_START_B', label = '\t[Bottom]', value = 12 },
             { type = 'input_number', id = 'POPCORN_POT_START_L', label = '\tPopcorn Pot\t[left]', value = 12, new_row = false },
             { type = 'input_number', id = 'POPCORN_POT_START_B', label = '\t[Bottom]', value = 6 },
+            { type = 'input_number', id = 'HONEY_EXTRACTOR_START_L', label = '\tHoney Extractor\t[left]', value = 12, new_row = false },
+            { type = 'input_number', id = 'HONEY_EXTRACTOR_START_B', label = '\t[Bottom]', value = 3 },
+
             --{ type = 'input_number', id = '#', label = '\tBeehive Tree\t[left]', value = 1, new_row = false },
             --{ type = 'input_number', id = '#', label = '\t[Bottom]', value = 10 },
         }

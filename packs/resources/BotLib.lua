@@ -12,6 +12,7 @@ local math_abs = math.abs
 local holder_list = {
     Image:generateBulkList('holder/1/', 1),
     Image:generateBulkList('holder/2/', 1),
+    Image:generateBulkList('holder/3/', 1),
 }
 local _temp_img = GV.DEV.ID .. "_temp.png"
 
@@ -80,13 +81,16 @@ end
 --end
 
 -------------------------------------------------------------------------------
-function M.getHolder(t, to, list, r)
-    t = t or 1
-    to = to or { 0, 0 }
-    list = list or 1
-    r = r or GV.REG.align
+function M.getHolder(autoAlign, img_op)
+    img_op = img_op or {}
+    img_op.timeout = img_op.timeout or 1
+    img_op.offset = img_op.offset or { 0, 0 }
+    img_op.list = img_op.list or 1
+    img_op.reg = img_op.reg or GV.REG.align
+    img_op.similar = img_op.similar or 0.75
+    --
     for try = 1, 2 do
-        if Image:R(r):bulkSearch(holder_list[list], t, 0.75, to) then
+        if Image:R(img_op.reg):bulkSearch(holder_list[img_op.list], img_op.timeout, img_op.similar, img_op.offset) then
             local anchor = Image:getData()
             local screen = Region(0, 0, GV.SETTINGS.WIDTH, GV.SETTINGS.HEIGHT)
             if luall.location_in_region(anchor.target.obj, screen) then
@@ -94,8 +98,7 @@ function M.getHolder(t, to, list, r)
             end
         end
         --
-        if try == 1 then
-            print("align")
+        if try == 1 and autoAlign then
             M.align()
         end
     end
@@ -237,7 +240,7 @@ function M.zoomOut()
     local pt2EndY = GV.SCREEN.h * 0.80
     --
 
-    _zoom(pt1StartX, pt1StartY, pt1EndX, pt1EndY, pt2StartX, pt2StartY, pt2EndX, pt2EndY, 500, false)
+    _zoom(pt1StartX, pt1StartY, pt1EndX, pt1EndY, pt2StartX, pt2StartY, pt2EndX, pt2EndY, 500)
 end
 
 function M.align(timeout, align_spot)
